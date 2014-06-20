@@ -1,0 +1,32 @@
+#summary Here's what you need to know if you want to build from source.
+
+= Introduction =
+
+If you want to build without integration testing just do a maven install;
+{{{
+mvn.bat -Dfile.encoding=UTF-8 clean install
+}}}
+
+If you want to run integration tests you'll need to set-up a DB account to connect to and get the oracle JDBC drivers in your local maven repository.
+The maven command to build and run integration tests is;
+{{{
+mvn.bat -Dsurefire.exclude=ExclUdeNOTHING -Dfile.encoding=UTF-8 clean install
+}}}
+
+== Database set-up Details ==
+
+To run integration tests you need to create a database account. Here's how I did it with an Oracle database running on my machine;
+  # To create the DB account (opb_jse_demo). e.g. Run the following commands via SQL*Plus; 
+    * CREATE USER sqlrunner_test DEFAULT TABLESPACE users IDENTIFIED BY weak_pw;
+    * GRANT DBA TO sqlrunner_test;
+
+The default DB connection details are (see src/test/resources/test-context.xml); 
+  # url=jdbc:oracle:thin:@//localhost:1521/xe
+  # user=sqlrunner_test
+  # password=weak_pw
+This URL will work if you have a local copy of Oracle XE running. 
+If you would like to use a different URL or user, please edit the configuration of the dataSource bean in src/test/resources/test-context.xml. 
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
