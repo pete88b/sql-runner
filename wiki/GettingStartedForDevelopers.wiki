@@ -15,7 +15,7 @@ mvn.bat -Dsurefire.exclude=ExclUdeNOTHING -Dfile.encoding=UTF-8 clean install
 
 == Database set-up Details ==
 
-To run integration tests you need to create a database account. Here's how I did it with an Oracle database running on my machine;
+To run integration tests you need access to a database. Here's how I set things up with an Oracle database running on my machine;
   # To create the DB account (opb_jse_demo). e.g. Run the following commands via SQL*Plus; 
     * CREATE USER sqlrunner_test DEFAULT TABLESPACE users IDENTIFIED BY weak_pw;
     * GRANT DBA TO sqlrunner_test;
