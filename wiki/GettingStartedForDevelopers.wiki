@@ -26,7 +26,3 @@ The default DB connection details are (see src/test/resources/test-context.xml);
   # password=weak_pw
 This URL will work if you have a local copy of Oracle XE running. 
 If you would like to use a different URL or user, please edit the configuration of the dataSource bean in src/test/resources/test-context.xml. 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
