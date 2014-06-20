@@ -82,7 +82,6 @@ public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextT
 
         SqlRunnerCallbackHandler callbackHandler = new SqlRunnerCallbackHandler() {
 
-            @Override
             public PreparedStatement prepareStatement(
                     Connection connection, SqlRunnerStatement sqlRunnerStatement)
                     throws SQLException {
@@ -92,7 +91,6 @@ public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextT
                 return preparedStatement;
             }
 
-            @Override
             public void executeComplete(PreparedStatement preparedStatement, SqlRunnerStatement sqlRunnerStatement) throws SQLException {
                 ResultSet resultSet = preparedStatement.getGeneratedKeys();
                 resultSet.next();
@@ -107,7 +105,6 @@ public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextT
 
         SqlRunnerCallbackHandler callbackHandler2 = new SqlRunnerCallbackHandler() {
 
-            @Override
             public PreparedStatement prepareStatement(
                     Connection connection, SqlRunnerStatement sqlRunnerStatement)
                     throws SQLException {
@@ -117,7 +114,6 @@ public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextT
                 return preparedStatement;
             }
 
-            @Override
             public void executeComplete(PreparedStatement preparedStatement, SqlRunnerStatement sqlRunnerStatement) throws SQLException {
             }
         };
@@ -167,7 +163,6 @@ public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextT
 
         SqlRunnerCallbackHandler callbackHandler = new SqlRunnerCallbackHandler() {
 
-            @Override
             public PreparedStatement prepareStatement(
                     Connection connection, SqlRunnerStatement sqlRunnerStatement)
                     throws SQLException {
@@ -178,7 +173,6 @@ public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextT
                 return oraclePreparedStatement;
             }
 
-            @Override
             public void executeComplete(PreparedStatement preparedStatement, SqlRunnerStatement sqlRunnerStatement) throws SQLException {
                 OraclePreparedStatement oraclePreparedStatement =
                         (OraclePreparedStatement) preparedStatement;

@@ -69,7 +69,6 @@ public class SqlRunnerIntegrationTest2 extends AbstractJUnit4SpringContextTests 
 
         final SqlRunnerCallbackHandler callbackHandler = new SqlRunnerCallbackHandler() {
 
-            @Override
             public PreparedStatement prepareStatement(
                     Connection connection, SqlRunnerStatement sqlRunnerStatement)
                     throws SQLException {
@@ -81,7 +80,6 @@ public class SqlRunnerIntegrationTest2 extends AbstractJUnit4SpringContextTests 
                 return preparedStatement;
             }
 
-            @Override
             public void executeComplete(PreparedStatement preparedStatement, SqlRunnerStatement sqlRunnerStatement) throws SQLException {
                 // get the generated values
                 final ResultSet generatedKeys = preparedStatement.getGeneratedKeys();

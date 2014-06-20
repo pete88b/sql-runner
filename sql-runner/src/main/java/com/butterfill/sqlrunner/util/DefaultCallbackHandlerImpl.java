@@ -13,14 +13,12 @@ import java.sql.SQLException;
  */
 public class DefaultCallbackHandlerImpl implements SqlRunnerCallbackHandler {
 
-    @Override
     public PreparedStatement prepareStatement(
             final Connection connection, final SqlRunnerStatement sqlRunnerStatement)
             throws SQLException {
         return connection.prepareStatement(sqlRunnerStatement.getSql());
     }
 
-    @Override
     public void executeComplete(
             final PreparedStatement preparedStatement, final SqlRunnerStatement sqlRunnerStatement)
             throws SQLException {
