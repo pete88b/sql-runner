@@ -8,9 +8,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
-        <oracle.version>11.2.0.3</oracle.version>
+        <maven.compiler.source>1.5</maven.compiler.source>
+        <maven.compiler.target>1.5</maven.compiler.target>
         <org.springframework.version>3.2.8.RELEASE</org.springframework.version>
         <surefire.exclude>**/*IntegrationTest.class</surefire.exclude>
     </properties>
@@ -134,11 +133,10 @@
         </dependency>
 
         <dependency>
-            <!-- TODO: xxx change to jdk specific -->
             <groupId>oracle</groupId>
-            <artifactId>oracle-jdbc</artifactId>
-            <version>${oracle.version}</version>
-            <!--<scope>test</scope>-->
+            <artifactId>oracle-jdbc5</artifactId>
+            <version>11.2.0.4</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- See: http://spring.io/blog/2009/12/02/obtaining-spring-3-artifacts-with-maven/ -->

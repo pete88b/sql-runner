@@ -158,12 +158,10 @@ public class SqlRunnerIntegrationTest extends AbstractJUnit4SpringContextTests {
         String statementName = "statement1";
         SqlRunnerCallbackHandler handler = new SqlRunnerCallbackHandler() {
 
-            @Override
             public PreparedStatement prepareStatement(Connection c, SqlRunnerStatement s) {
                 return null;
             }
 
-            @Override
             public void executeComplete(PreparedStatement p, SqlRunnerStatement s) {
             }
         };
@@ -182,8 +180,8 @@ public class SqlRunnerIntegrationTest extends AbstractJUnit4SpringContextTests {
         String statementName = "s2";
         SqlRunnerResultSetNextRowCallbackHandler handler =
                 new SqlRunnerResultSetNextRowCallbackHandler() {
-            @Override
-            public void nextRow(SqlRunner r, SqlRunnerStatement s, ResultSet rs, int rowNumber) {
+
+                    public void nextRow(SqlRunner r, SqlRunnerStatement s, ResultSet rs, int rowNumber) {
                 // do nothing
             }
         };
@@ -284,7 +282,6 @@ public class SqlRunnerIntegrationTest extends AbstractJUnit4SpringContextTests {
         SqlRunner instance = sqlRunnerFactory.newSqlRunner();
         instance.setCallbackHandler("select-from-table-a", new SqlRunnerCallbackHandler() {
 
-            @Override
             public PreparedStatement prepareStatement(
                     Connection connection, SqlRunnerStatement sqlRunnerStatement)
                     throws SQLException {
@@ -293,7 +290,6 @@ public class SqlRunnerIntegrationTest extends AbstractJUnit4SpringContextTests {
                 return preparedStatement;
             }
 
-            @Override
             public void executeComplete(PreparedStatement preparedStatement, SqlRunnerStatement sqlRunnerStatement) throws SQLException {
 
             }
@@ -326,7 +322,7 @@ public class SqlRunnerIntegrationTest extends AbstractJUnit4SpringContextTests {
         final List<Object> results = new ArrayList<Object>();
         SqlRunner instance = sqlRunnerFactory.newSqlRunner();
         instance.setResultSetNextRowCallbackHandler(null, new SqlRunnerResultSetNextRowCallbackHandler() {
-            @Override
+
             public void nextRow(SqlRunner sqlRunner, SqlRunnerStatement statement,
                     ResultSet resultSet, int rowNumber)
                     throws SQLException {
@@ -459,7 +455,6 @@ public class SqlRunnerIntegrationTest extends AbstractJUnit4SpringContextTests {
 
         SqlRunnerCallbackHandler callbackHandler = new SqlRunnerCallbackHandler() {
 
-            @Override
             public PreparedStatement prepareStatement(
                     Connection connection, SqlRunnerStatement sqlRunnerStatement)
                     throws SQLException {
@@ -469,7 +464,6 @@ public class SqlRunnerIntegrationTest extends AbstractJUnit4SpringContextTests {
                 return preparedStatement;
             }
 
-            @Override
             public void executeComplete(PreparedStatement preparedStatement, SqlRunnerStatement sqlRunnerStatement) throws SQLException {
 
             }
@@ -527,7 +521,7 @@ public class SqlRunnerIntegrationTest extends AbstractJUnit4SpringContextTests {
         SqlRunner instance = sqlRunnerFactory.newSqlRunner();
 
         instance.setResultSetNextRowCallbackHandler(null, new SqlRunnerResultSetNextRowCallbackHandler() {
-            @Override
+
             public void nextRow(SqlRunner sqlRunner, SqlRunnerStatement statement,
                     ResultSet resultSet, int rowNumber)
                     throws SQLException {

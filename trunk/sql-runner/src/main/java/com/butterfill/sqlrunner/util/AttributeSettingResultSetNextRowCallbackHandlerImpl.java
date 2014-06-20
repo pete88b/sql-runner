@@ -15,7 +15,6 @@ import java.sql.SQLException;
 public class AttributeSettingResultSetNextRowCallbackHandlerImpl
         implements SqlRunnerResultSetNextRowCallbackHandler {
 
-    @Override
     public void nextRow(final SqlRunner sqlRunner, final SqlRunnerStatement statement,
             final ResultSet resultSet, final int rowNumber) throws SQLException {
         final ResultSetMetaData metaData = resultSet.getMetaData();

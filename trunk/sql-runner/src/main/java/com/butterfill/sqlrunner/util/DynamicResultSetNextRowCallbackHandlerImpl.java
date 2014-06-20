@@ -35,7 +35,6 @@ public class DynamicResultSetNextRowCallbackHandlerImpl
     private static final SqlNameToJavaNameHelper SQL_NAME_TO_JAVA_NAME_HELPER =
             new SqlNameToJavaNameHelper();
 
-    @Override
     public void nextRow(final SqlRunner sqlRunner, final SqlRunnerStatement sqlRunnerStatement,
             final ResultSet resultSet, final int rowNumber) throws SQLException {
         // get metadata for every row to keep this method stateless - hope the JDBC drivers
