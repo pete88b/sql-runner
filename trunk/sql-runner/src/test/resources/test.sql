@@ -7,17 +7,17 @@ update a
    set b = 2
  where 1 = 2;
 
---sqlrunner: not-the-real-statement-name
+--sqlrunner.name: not-the-real-statement-name
 
 /*
 any old comment
 */
---sqlrunner: query1
+--sqlrunner.name: query1
 /* any old comment2 */
 SELECT *
   FROM dual;
 
---sqlrunner:query2
+--sqlrunner.name:query2
 SELECT *
   FROM dual;
 

@@ -173,8 +173,8 @@ public class SqlRunnerTest {
         assertEquals("--", instance.getSingleLineCommentPrefix());
         instance.setSingleLineCommentPrefix("#");
         assertEquals("#", instance.getSingleLineCommentPrefix());
-        assertEquals("#sqlrunner:",
-                TestHelper.getFieldValue(SqlRunner.class, "sqlRunnerCommentPrefix", instance));
+        assertEquals("#sqlrunner.name:",
+                TestHelper.getFieldValue(SqlRunner.class, "nameCommentPrefix", instance));
     }
 
     @Test

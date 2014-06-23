@@ -1,6 +1,8 @@
 
 package com.butterfill.sqlrunner;
 
+import com.butterfill.sqlrunner.util.DynamicResultSetNextRowCallbackHandlerImpl;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,9 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
-import oracle.jdbc.OraclePreparedStatement;
-import oracle.jdbc.OracleTypes;
-import oracle.jdbc.pool.OracleDataSource;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -29,7 +28,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  *
  * @author Peter Butterfill
  */
-@ContextConfiguration(locations = "classpath:test-context.xml")
+@ContextConfiguration(locations = "classpath:test-context-oracle.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
 public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextTests {
 
@@ -52,31 +51,442 @@ public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextT
 
     @Before
     public void setUp() {
-//        try {
-//            sqlRunnerFactory.newSqlRunner().run("drop table a");
-//        } catch (RuntimeException ex) {
-//            // ignore it
-//        }
     }
 
     @After
     public void tearDown() {
     }
 
-    private boolean isOracleDb() {
-        return dataSource instanceof OracleDataSource;
+    /**
+     * Test of getCharsetName method, of class SqlRunner.
+     */
+    @Test
+    public void testGetCharsetName() {
+        System.out.println("getCharsetName");
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        String expResult = "UTF-8";
+        String result = instance.getCharsetName();
+        assertEquals(expResult, result);
+    }
+
+    /**
+     * Test of getFilePathPrefix method, of class SqlRunner.
+     */
+    @Test
+    public void testGetFilePathPrefix() {
+        System.out.println("getFilePathPrefix");
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        String expResult = "/";
+        String result = instance.getFilePathPrefix();
+        assertEquals(expResult, result);
+    }
+
+    /**
+     * Test of getAttributeNamePrefix method, of class SqlRunner.
+     */
+    @Test
+    public void testGetAttributePrefix() {
+        System.out.println("getAttributeNamePrefix");
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        String expResult = "#{";
+        String result = instance.getAttributePrefix();
+        assertEquals(expResult, result);
+    }
+
+    /**
+     * Test of getAttributeNamePostfix method, of class SqlRunner.
+     */
+    @Test
+    public void testGetAttributePostfix() {
+        System.out.println("getAttributeNamePostfix");
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        String expResult = "}";
+        String result = instance.getAttributePostfix();
+        assertEquals(expResult, result);
+    }
+
+    /**
+     * Test of setCharsetName method, of class SqlRunner.
+     */
+    @Test
+    public void testSetCharsetName() {
+        System.out.println("setCharsetName");
+        String charsetName = "UTF-16";
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        SqlRunner expResult = instance;
+        SqlRunner result = instance.setCharsetName(charsetName);
+        assertEquals(expResult, result);
+        assertEquals(charsetName, result.getCharsetName());
+
+    }
+
+    /**
+     * Test of setFilePathPrefix method, of class SqlRunner.
+     */
+    @Test
+    public void testSetFilePathPrefix() {
+        System.out.println("setFilePathPrefix");
+        String filePathPrefix = "/test/";
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        SqlRunner expResult = instance;
+        SqlRunner result = instance.setFilePathPrefix(filePathPrefix);
+        assertEquals(expResult, result);
+        assertEquals(filePathPrefix, result.getFilePathPrefix());
+
+    }
+
+    /**
+     * Test of setAttribute method, of class SqlRunner.
+     */
+    @Test
+    public void testSetAttribute() {
+        System.out.println("setAttribute");
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        SqlRunner expResult = instance;
+        SqlRunner result = instance.setAttribute("a", "A");
+        assertEquals(expResult, result);
+        // TODO: xxx
+
+    }
+
+    /**
+     * Test of setStatementPreparedCallbackHandler method, of class SqlRunner.
+     */
+    @Test
+    public void testSetStatementPreparedCallbackHandler() {
+        System.out.println("setStatementPreparedCallbackHandler");
+        String statementName = "statement1";
+        SqlRunnerCallbackHandler handler = new SqlRunnerCallbackHandler() {
+
+            public PreparedStatement prepareStatement(Connection c, SqlRunnerStatement s) {
+                return null;
+            }
+
+            public void executeComplete(PreparedStatement p, SqlRunnerStatement s) {
+            }
+        };
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        SqlRunner expResult = instance;
+        SqlRunner result = instance.setCallbackHandler(statementName, handler);
+        assertEquals(expResult, result);
+    }
+
+    /**
+     * Test of setResultSetNextRowCallbackHandler method, of class SqlRunner.
+     */
+    @Test
+    public void testSetResultSetNextRowCallbackHandler() {
+        System.out.println("setResultSetNextRowCallbackHandler");
+        String statementName = "s2";
+        SqlRunnerResultSetNextRowCallbackHandler handler =
+                new SqlRunnerResultSetNextRowCallbackHandler() {
+
+                    public void nextRow(SqlRunner r, SqlRunnerStatement s, ResultSet rs, int rowNumber) {
+                // do nothing
+            }
+        };
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        SqlRunner expResult = instance;
+        SqlRunner result = instance.setResultSetNextRowCallbackHandler(statementName, handler);
+        assertEquals(expResult, result);
+
+    }
+
+    /**
+     * Test of runFile method, of class SqlRunner.
+     */
+    @Test
+    public void testRunFile_emptySql() {
+        if (!TestHelper.isOracleDb(dataSource)) {
+            return;
+        }
+        System.out.println("runFile");
+        String fileName = "empty.sql";
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        List<SqlRunnerStatement> result = instance.runFile(fileName);
+        assertEquals(0, result.size());
+
+    }
+
+    /**
+     * Test of runFile method, of class SqlRunner.
+     */
+    @Test
+    public void testRunFile() {
+        if (!TestHelper.isOracleDb(dataSource)) {
+            return;
+        }
+        System.out.println("runFile");
+        String fileName = "test_1.sql";
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        List<SqlRunnerStatement> result = instance.runFile(fileName);
+        assertEquals(3, result.size());
+
+        assertEquals(Integer.valueOf("1"), result.get(0).getUpdateCount());
+        assertEquals(null, result.get(1).getUpdateCount());
+        assertEquals(Integer.valueOf("0"), result.get(2).getUpdateCount());
+
+        Map<String, String> attributeMap = (Map<String, String>)
+                TestHelper.getFieldValue(SqlRunner.class, "attributeMap", instance);
+        assertEquals("1", attributeMap.get("NUMBER_COL.1"));
+        assertEquals("a", attributeMap.get("TEXT_COL.1"));
+
+    }
+
+    /**
+     * Test of runFile method, of class SqlRunner.
+     */
+    @Test
+    public void testRunFile_withConnection() throws Exception {
+        if (!TestHelper.isOracleDb(dataSource)) {
+            return;
+        }
+        System.out.println("runFile");
+        String fileName = "test_1.sql";
+
+        Connection connection = dataSource.getConnection();
+
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        List<SqlRunnerStatement> result = instance.runFile(fileName, connection);
+        assertEquals(3, result.size());
+
+        assertEquals(Integer.valueOf("1"), result.get(0).getUpdateCount());
+        assertEquals(null, result.get(1).getUpdateCount());
+        assertEquals(Integer.valueOf("0"), result.get(2).getUpdateCount());
+
+        Map<String, String> attributeMap = (Map<String, String>)
+                TestHelper.getFieldValue(SqlRunner.class, "attributeMap", instance);
+        assertEquals("1", attributeMap.get("NUMBER_COL.1"));
+        assertEquals("a", attributeMap.get("TEXT_COL.1"));
+
+    }
+
+    /**
+     * Test of runFile method, of class SqlRunner.
+     */
+    @Test
+    public void testRunFile_withBindingParamter_notSet() {
+        if (!TestHelper.isOracleDb(dataSource)) {
+            return;
+        }
+        System.out.println("runFile");
+        String fileName = "test_2.sql";
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        
+        try {
+            instance.runFile(fileName);
+            fail("expected an exception becuase the bind parameter was not set");
+
+        } catch (SqlRunnerException ex) {
+            assertTrue(ex.getMessage().startsWith("failed to execute"));
+
+        } finally {
+            instance.run("drop table a");
+
+        }
+
+    }
+
+    @Test
+    public void testRunFile_withBindingParamter() {
+        if (!TestHelper.isOracleDb(dataSource)) {
+            return;
+        }
+
+        System.out.println("testRunFile_withBindingParamter");
+
+        String fileName = "test_2.sql";
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        instance.setCallbackHandler("select-from-table-a", new SqlRunnerCallbackHandler() {
+
+            public PreparedStatement prepareStatement(
+                    Connection connection, SqlRunnerStatement sqlRunnerStatement)
+                    throws SQLException {
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlRunnerStatement.getSql());
+                preparedStatement.setInt(1, 3);
+                return preparedStatement;
+            }
+
+            public void executeComplete(PreparedStatement preparedStatement, SqlRunnerStatement sqlRunnerStatement) throws SQLException {
+
+            }
+        });
+        List<SqlRunnerStatement> result = instance.runFile(fileName);
+        assertEquals(3, result.size());
+
+        assertEquals(Integer.valueOf("20"), result.get(0).getUpdateCount());
+        assertEquals(null, result.get(1).getUpdateCount());
+        assertEquals(Integer.valueOf("0"), result.get(2).getUpdateCount());
+
+        Map<String, String> attributeMap = (Map<String, String>)
+                TestHelper.getFieldValue(SqlRunner.class, "attributeMap", instance);
+        assertEquals("1", attributeMap.get("NUMBER_COL.1"));
+        assertEquals("a", attributeMap.get("TEXT_COL.1"));
+
+        assertEquals("2", attributeMap.get("NUMBER_COL.2"));
+        assertEquals("a", attributeMap.get("TEXT_COL.2"));
+
+        assertEquals(4, attributeMap.size());
+
+    }
+
+    /**
+     * Test of runFile method, of class SqlRunner.
+     */
+    @Test
+    public void testRunFile_withResultSetNextRowCallbackHandler() {
+        if (!TestHelper.isOracleDb(dataSource)) {
+            return;
+        }
+
+        System.out.println("runFile_withResultSetNextRowCallbackHandler");
+        final List<Object> results = new ArrayList<Object>();
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        instance.setResultSetNextRowCallbackHandler(null, new SqlRunnerResultSetNextRowCallbackHandler() {
+
+            public void nextRow(SqlRunner sqlRunner, SqlRunnerStatement statement,
+                    ResultSet resultSet, int rowNumber)
+                    throws SQLException {
+                results.add(resultSet.getObject(1));
+                results.add(resultSet.getObject(2));
+                // expect only one row
+                assertEquals(1, rowNumber);
+            }
+        });
+        String fileName = "test_1.sql";
+
+        List<SqlRunnerStatement> result = instance.runFile(fileName);
+        assertEquals(3, result.size());
+
+        assertEquals(Integer.valueOf("1"), result.get(0).getUpdateCount());
+        assertEquals(null, result.get(1).getUpdateCount());
+        assertEquals(Integer.valueOf("0"), result.get(2).getUpdateCount());
+
+        assertEquals(BigDecimal.ONE, results.get(0));
+        assertEquals("a", results.get(1));
+        assertEquals(2, results.size());
+
+    }
+
+    /**
+     * Test of runFile method, of class SqlRunner.
+     */
+    @Test
+    public void testRunFile_withDynamicResultSetNextRowCallbackHandler() {
+        if (!TestHelper.isOracleDb(dataSource)) {
+            return;
+        }
+
+        System.out.println("runFile_withDynamicResultSetNextRowCallbackHandler");
+
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        instance.setResultSetNextRowCallbackHandler(
+                null, new DynamicResultSetNextRowCallbackHandlerImpl());
+        String fileName = "test_3.sql";
+
+        List<SqlRunnerStatement> result = instance.runFile(fileName);
+        assertEquals(3, result.size());
+
+        assertEquals(Integer.valueOf("3"), result.get(0).getUpdateCount());
+        assertEquals(null, result.get(1).getUpdateCount());
+        assertEquals(Integer.valueOf("0"), result.get(2).getUpdateCount());
+
+        List<Map<String, Object>> results = (List<Map<String, Object>>) result.get(1).getResult();
+        assertEquals(3, results.size());
+        Map<String, Object> row = results.get(0);
+        assertEquals(BigDecimal.ONE, row.get("numberCol"));
+        assertEquals("A", row.get("textCol"));
+
     }
 
     /**
      * Test of run method, of class SqlRunner.
      */
     @Test
-    public void testRun_withCallbackHandler() throws Exception {
-        if (!isOracleDb()) {
+    public void testRun() {
+        if (!TestHelper.isOracleDb(dataSource)) {
             return;
         }
 
-        final List<Object> results = new ArrayList<Object>();
+        System.out.println("run");
+
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+
+        try {
+            String sql = "create table a as select 1 as number_col, 'a' as text_col "
+                    + "from all_objects where rownum < 2";
+            SqlRunnerStatement result = instance.run(sql);
+            assertEquals(Integer.valueOf("1"), result.getUpdateCount());
+            assertFalse(result.getResultOfExecutionWasResultSet());
+
+            sql = "select * from a";
+            result = instance.run(sql);
+            assertEquals(null, result.getUpdateCount());
+            assertTrue(result.getResultOfExecutionWasResultSet());
+
+            Map<String, String> attributeMap = (Map<String, String>)
+                    TestHelper.getFieldValue(SqlRunner.class, "attributeMap", instance);
+            assertEquals("1", attributeMap.get("NUMBER_COL.1"));
+            assertEquals("a", attributeMap.get("TEXT_COL.1"));
+
+        } finally {
+            instance.run("drop table a");
+
+        }
+
+    }
+
+    /**
+     * Test of run method, of class SqlRunner.
+     */
+    @Test
+    public void testRun_withConnection() throws Exception {
+        if (!TestHelper.isOracleDb(dataSource)) {
+            return;
+        }
+
+        System.out.println("run");
+
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+
+        try {
+            Connection connection = dataSource.getConnection();
+
+            String sql = "create table a as select 1 as number_col, 'a' as text_col "
+                    + "from all_objects where rownum < 2";
+            SqlRunnerStatement result = instance.run(sql, connection);
+            assertEquals(Integer.valueOf("1"), result.getUpdateCount());
+            assertFalse(result.getResultOfExecutionWasResultSet());
+
+            sql = "select * from a";
+            result = instance.run(sql, connection);
+            assertEquals(null, result.getUpdateCount());
+            assertTrue(result.getResultOfExecutionWasResultSet());
+
+            Map<String, String> attributeMap = (Map<String, String>)
+                    TestHelper.getFieldValue(SqlRunner.class, "attributeMap", instance);
+            assertEquals("1", attributeMap.get("NUMBER_COL.1"));
+            assertEquals("a", attributeMap.get("TEXT_COL.1"));
+
+            connection.close();
+
+        } finally {
+            instance.run("drop table a");
+
+        }
+
+    }
+
+    /**
+     * Test of run method, of class SqlRunner.
+     */
+    @Test
+    public void testRun_withCallbackHandler() {
+        if (!TestHelper.isOracleDb(dataSource)) {
+            return;
+        }
+
+        System.out.println("run_withCallbackHandler");
 
         SqlRunner instance = sqlRunnerFactory.newSqlRunner();
 
@@ -85,36 +495,14 @@ public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextT
             public PreparedStatement prepareStatement(
                     Connection connection, SqlRunnerStatement sqlRunnerStatement)
                     throws SQLException {
-                PreparedStatement preparedStatement = connection.prepareStatement(
-                        sqlRunnerStatement.getSql(), PreparedStatement.RETURN_GENERATED_KEYS);
+                PreparedStatement preparedStatement =
+                        connection.prepareStatement(sqlRunnerStatement.getSql());
                 preparedStatement.setInt(1, 9);
                 return preparedStatement;
             }
 
             public void executeComplete(PreparedStatement preparedStatement, SqlRunnerStatement sqlRunnerStatement) throws SQLException {
-                ResultSet resultSet = preparedStatement.getGeneratedKeys();
-                resultSet.next();
-                // resultSet.getRowId would be good but Oracle does not support this method
-                // neither do MySQL or Java DB
-                // calling getObject will give is a ROWID
-                results.add(resultSet.getObject(1));
-                assertFalse("expect just one row in the result set", resultSet.next());
-                resultSet.close();
-            }
-        };
 
-        SqlRunnerCallbackHandler callbackHandler2 = new SqlRunnerCallbackHandler() {
-
-            public PreparedStatement prepareStatement(
-                    Connection connection, SqlRunnerStatement sqlRunnerStatement)
-                    throws SQLException {
-                PreparedStatement preparedStatement = connection.prepareStatement(
-                        sqlRunnerStatement.getSql());
-                preparedStatement.setObject(1, results.get(0));
-                return preparedStatement;
-            }
-
-            public void executeComplete(PreparedStatement preparedStatement, SqlRunnerStatement sqlRunnerStatement) throws SQLException {
             }
         };
 
@@ -132,12 +520,8 @@ public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextT
             assertEquals((Object) 1, result.getUpdateCount());
             assertFalse(result.getResultOfExecutionWasResultSet());
 
-            sql = "select * from a where rowid = ?";
-            instance.setCallbackHandler(null, callbackHandler2);
-            result = instance.run(sql);
-            instance.setCallbackHandler(null, null);
-            assertEquals(null, result.getUpdateCount());
-            assertTrue(result.getResultOfExecutionWasResultSet());
+            sql = "select * from a";
+            instance.run(sql);
 
             Map<String, String> attributeMap = (Map<String, String>)
                     TestHelper.getFieldValue(SqlRunner.class, "attributeMap", instance);
@@ -151,54 +535,67 @@ public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextT
 
     }
 
+    /**
+     * Test of run method, of class SqlRunner.
+     */
     @Test
-    public void testRun_withCallbackHandler_returning() throws Exception {
-        if (!isOracleDb()) {
+    public void testRun_badSql() {
+        if (!TestHelper.isOracleDb(dataSource)) {
             return;
         }
+
+        System.out.println("run_badSql");
+
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        try {
+            instance.run("bad sql");
+            fail();
+        } catch (SqlRunnerException ex) {
+
+        }
+    }
+
+    /**
+     * Test of run method, of class SqlRunner.
+     */
+    @Test
+    public void testRun_withResultSetNextRowCallbackHandler() {
+        if (!TestHelper.isOracleDb(dataSource)) {
+            return;
+        }
+
+        System.out.println("testRun_withResultSetNextRowCallbackHandler");
 
         final List<Object> results = new ArrayList<Object>();
 
         SqlRunner instance = sqlRunnerFactory.newSqlRunner();
 
-        SqlRunnerCallbackHandler callbackHandler = new SqlRunnerCallbackHandler() {
+        instance.setResultSetNextRowCallbackHandler(null, new SqlRunnerResultSetNextRowCallbackHandler() {
 
-            public PreparedStatement prepareStatement(
-                    Connection connection, SqlRunnerStatement sqlRunnerStatement)
+            public void nextRow(SqlRunner sqlRunner, SqlRunnerStatement statement,
+                    ResultSet resultSet, int rowNumber)
                     throws SQLException {
-                OraclePreparedStatement oraclePreparedStatement = (OraclePreparedStatement)
-                        connection.prepareStatement(sqlRunnerStatement.getSql());
-                oraclePreparedStatement.setInt(1, 9);
-                oraclePreparedStatement.registerReturnParameter(2, OracleTypes.VARCHAR);
-                return oraclePreparedStatement;
-            }
-
-            public void executeComplete(PreparedStatement preparedStatement, SqlRunnerStatement sqlRunnerStatement) throws SQLException {
-                OraclePreparedStatement oraclePreparedStatement =
-                        (OraclePreparedStatement) preparedStatement;
-                ResultSet resultSet = oraclePreparedStatement.getReturnResultSet();
-                resultSet.next();
                 results.add(resultSet.getObject(1));
-                assertFalse("expect just one row in the result set", resultSet.next());
-                resultSet.close();
+                results.add(resultSet.getObject(2));
+                // expect only one row
+                assertEquals(1, rowNumber);
             }
-        };
+        });
 
         try {
-            String sql =
-                    "create table a(number_col number, text_col varchar2(20) default 'test text')";
+            String sql = "create table a as select 1 as number_col, 'a' as text_col "
+                    + "from all_objects where rownum < 2";
             SqlRunnerStatement result = instance.run(sql);
-            assertEquals(Integer.valueOf("0"), result.getUpdateCount());
+            assertEquals(Integer.valueOf("1"), result.getUpdateCount());
             assertFalse(result.getResultOfExecutionWasResultSet());
 
-            sql = "insert into a(number_col) values(?) returning text_col into ?";
-            instance.setCallbackHandler(null, callbackHandler);
+            sql = "select * from a";
             result = instance.run(sql);
-            instance.setCallbackHandler(null, null);
-            assertEquals((Object) 1, result.getUpdateCount());
-            assertFalse(result.getResultOfExecutionWasResultSet());
-
-            assertEquals("test text", results.get(0));
+            assertEquals(null, result.getUpdateCount());
+            assertTrue(result.getResultOfExecutionWasResultSet());
+            assertEquals(BigDecimal.ONE, results.get(0));
+            assertEquals("a", results.get(1));
+            assertEquals(2, results.size());
 
         } finally {
             instance.run("drop table a");
