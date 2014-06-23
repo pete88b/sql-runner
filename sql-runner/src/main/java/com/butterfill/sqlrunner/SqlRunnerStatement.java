@@ -7,6 +7,8 @@ import java.util.logging.Logger;
  * Wraps a SQL statement and holds the results of running the statement.
  * This class also gives the statement a name
  * - you can tell SqlRunner use callback handlers by statement name.
+ * By Default, all statements are "fail fast" - this means that if an exception is thrown when
+ * the statement is run, the exception will propagate and subsequent statements will not be run.
  * @author Peter Butterfill
  */
 public class SqlRunnerStatement {
@@ -32,6 +34,11 @@ public class SqlRunnerStatement {
     private String sql;
 
     /**
+     * Option to control fail fast behaviour.
+     */
+    private final boolean failFast;
+
+    /**
      * The result of running the statement.
      */
     private Integer updateCount;
@@ -49,6 +56,11 @@ public class SqlRunnerStatement {
     private Object result;
 
     /**
+     * The exception thrown by running this statement.
+     */
+    private Exception exception;
+
+    /**
      * Creates a new SqlRunnerStatement giving a name to the specified SQL.
      *
      * @param name
@@ -59,6 +71,23 @@ public class SqlRunnerStatement {
     public SqlRunnerStatement(final String name, final String sql) {
         this.name = name;
         this.sql = sql;
+        this.failFast = true;
+    }
+
+    /**
+     * Creates a new SqlRunnerStatement giving a name to the specified SQL.
+     *
+     * @param name
+     *   The name of this statement.
+     * @param sql
+     *   The SQL statement that we will run.
+     * @param failFast
+     *   Pass true if this is a "fail fast" statement, false otherwise.
+     */
+    public SqlRunnerStatement(final String name, final String sql, final boolean failFast) {
+        this.name = name;
+        this.sql = sql;
+        this.failFast = failFast;
     }
 
     /**
@@ -86,6 +115,15 @@ public class SqlRunnerStatement {
      */
     public void setSql(final String sql) {
         this.sql = sql;
+    }
+
+    /**
+     * Returns true if this is a "fail fast" statement, false otherwise.
+     * @return
+     *   true if this is a "fail fast" statement.
+     */
+    public boolean getFailFast() {
+        return failFast;
     }
 
     /**
@@ -151,6 +189,25 @@ public class SqlRunnerStatement {
     }
 
     /**
+     * Returns the exception raised by running this statement,
+     * returns null if the statement ran successfully or has not yet been run.
+     * @return
+     *   The exception raised by running this statement,
+     */
+    public Exception getException() {
+        return exception;
+    }
+
+    /**
+     * Sets the exception raised by running this statement,
+     * @param exception
+     *   The exception raised by running this statement,
+     */
+    public void setException(final Exception exception) {
+        this.exception = exception;
+    }
+
+    /**
      * Returns a string representation of this instance.
      * @return
      *   A string representation of this instance.
@@ -162,12 +219,16 @@ public class SqlRunnerStatement {
                 .append(name)
                 .append("\n  statement=")
                 .append(sql)
+                .append("\n  failFast=")
+                .append(failFast)
                 .append("\n  resultOfExecutionWasResultSet=")
                 .append(resultOfExecutionWasResultSet)
                 .append("\n  updateCount=")
                 .append(updateCount)
                 .append("\n  result=")
                 .append(result)
+                .append("\n  exception=")
+                .append(exception)
                 .append("]")
                 .toString();
     }

@@ -87,10 +87,16 @@ public class SqlRunner {
     private String singleLineCommentPrefix = "--";
 
     /**
-     * The sql-runner comment prefix -
-     * changing singleLineCommentPrefix will also change sqlRunnerCommentPrefix.
+     * The sql-runner name comment prefix -
+     * changing singleLineCommentPrefix will also change nameCommentPrefix.
      */
-    private String sqlRunnerCommentPrefix = "--sqlrunner:";
+    private String nameCommentPrefix = "--sqlrunner.name:";
+
+    /**
+     * The sql-runner fail fast comment prefix -
+     * changing singleLineCommentPrefix will also change nameCommentPrefix.
+     */
+    private String failFastCommentPrefix = "--sqlrunner.fail-fast:";
 
     /**
      * Attributes that may be used in the SQL file.
@@ -227,7 +233,8 @@ public class SqlRunner {
             throw new NullPointerException("singleLineCommentPrefix must not be null");
         }
         this.singleLineCommentPrefix = singleLineCommentPrefix;
-        this.sqlRunnerCommentPrefix = singleLineCommentPrefix + "sqlrunner:";
+        this.nameCommentPrefix = singleLineCommentPrefix + "sqlrunner.name:";
+        this.failFastCommentPrefix = singleLineCommentPrefix + "sqlrunner.fail-fast";
         return this;
     }
 
@@ -507,17 +514,21 @@ public class SqlRunner {
                 sqlRunnerStatement.setResultOfExecutionWasResultSet(false);
                 sqlRunnerStatement.setUpdateCount(preparedStatement.getUpdateCount());
             }
-            logger.logp(Level.FINER, CLASS_NAME, method, "{0}", sqlRunnerStatement);
             handler.executeComplete(preparedStatement, sqlRunnerStatement);
-            return sqlRunnerStatement;
 
         } catch (SQLException ex) {
-            throw new SqlRunnerException("failed to execute. " + sqlRunnerStatement, ex);
+            sqlRunnerStatement.setException(ex);
+            if (sqlRunnerStatement.getFailFast()) {
+                throw new SqlRunnerException("failed to execute. " + sqlRunnerStatement, ex);
+            }
 
         } finally {
             close(preparedStatement);
 
         }
+
+        logger.logp(Level.FINER, CLASS_NAME, method, "{0}", sqlRunnerStatement);
+        return sqlRunnerStatement;
 
     }
 
@@ -682,14 +693,22 @@ public class SqlRunner {
 
             final StringBuilder sqlBuilder = new StringBuilder();
             String statementName = null;
+            boolean failFast = true;
             boolean inMultiLineComment = false;
 
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 final String trimmedLine = line.trim();
 
-                if (trimmedLine.startsWith(sqlRunnerCommentPrefix)) {
+                if (trimmedLine.startsWith(nameCommentPrefix)) {
                     // we've found a sql runner comment - this gives us the statement name
-                    statementName = trimmedLine.substring(sqlRunnerCommentPrefix.length()).trim();
+                    statementName = trimmedLine.substring(nameCommentPrefix.length()).trim();
+                    continue;
+                }
+
+                if (trimmedLine.startsWith(failFastCommentPrefix)) {
+                    // we've found a sql runner comment - this gives us the statement name
+                    failFast = !"false"
+                            .equals(trimmedLine.substring(failFastCommentPrefix.length()).trim());
                     continue;
                 }
 
@@ -717,8 +736,9 @@ public class SqlRunner {
                 if (trimmedLine.endsWith(";")) {
                     // statements are terminated with a semi-colon
                     final String sql = sqlBuilder.substring(0, sqlBuilder.length() - 1);
-                    sqlRunnerStatements.add(new SqlRunnerStatement(statementName, sql));
+                    sqlRunnerStatements.add(new SqlRunnerStatement(statementName, sql, failFast));
                     statementName = null;
+                    failFast = true;
                     sqlBuilder.setLength(0);
 
                 } else {

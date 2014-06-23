@@ -1,12 +1,15 @@
 
 package com.butterfill.sqlrunner;
 
+import com.butterfill.sqlrunner.util.DynamicResultSetNextRowCallbackHandlerImpl;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.sql.DataSource;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -25,9 +28,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  *
  * @author Peter Butterfill
  */
-@ContextConfiguration(locations = "classpath:test-context.xml")
+@ContextConfiguration(locations = "classpath:test-context-derby.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
-public class SqlRunnerIntegrationTest2 extends AbstractJUnit4SpringContextTests {
+public class SqlRunnerDerbyIntegrationTest extends AbstractJUnit4SpringContextTests {
 
     @Autowired
     SqlRunnerFactory sqlRunnerFactory;
@@ -35,7 +38,7 @@ public class SqlRunnerIntegrationTest2 extends AbstractJUnit4SpringContextTests 
     @Autowired
     DataSource dataSource;
 
-    public SqlRunnerIntegrationTest2() {
+    public SqlRunnerDerbyIntegrationTest() {
     }
 
     @BeforeClass
@@ -59,13 +62,17 @@ public class SqlRunnerIntegrationTest2 extends AbstractJUnit4SpringContextTests 
      */
     @Test
     public void testRun_withCallbackHandler_returning() {
-        TestHelper.integrationTestSetup(dataSource);
+        if (!TestHelper.isDerbyDb(dataSource)) {
+            return;
+        }
 
         final List<Object> results = new ArrayList<Object>();
 
         final String studyName = "test study name";
 
         final SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+
+        instance.runFile("int-test-setup.sql");
 
         final SqlRunnerCallbackHandler callbackHandler = new SqlRunnerCallbackHandler() {
 
@@ -96,5 +103,6 @@ public class SqlRunnerIntegrationTest2 extends AbstractJUnit4SpringContextTests 
         assertEquals(1L, results.get(0));
 
     }
+
 
 }

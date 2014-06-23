@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
+import oracle.jdbc.pool.OracleDataSource;
 
 /**
  *
@@ -131,7 +132,7 @@ public class TestHelper {
         }
     }
 
-    public static void integrationTestSetup(DataSource dataSource) {
+    public static void integrationTestSetupOracle(DataSource dataSource) {
         try {
             Connection connection = dataSource.getConnection();
             Statement statement = connection.createStatement();
@@ -167,6 +168,14 @@ public class TestHelper {
 
         }
 
+    }
+
+    public static boolean isOracleDb(final DataSource dataSource) {
+        return dataSource instanceof OracleDataSource;
+    }
+
+    public static boolean isDerbyDb(final DataSource dataSource) {
+        return !(dataSource instanceof OracleDataSource);
     }
 
 } // End of class TestHelper
