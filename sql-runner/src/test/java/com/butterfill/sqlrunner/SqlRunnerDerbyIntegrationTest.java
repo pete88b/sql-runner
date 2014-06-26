@@ -28,7 +28,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  *
  * @author Peter Butterfill
  */
-@ContextConfiguration(locations = "classpath:test-context-derby.xml")
+@ContextConfiguration(locations = "classpath:derby/test-context-derby.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
 public class SqlRunnerDerbyIntegrationTest extends AbstractJUnit4SpringContextTests {
 

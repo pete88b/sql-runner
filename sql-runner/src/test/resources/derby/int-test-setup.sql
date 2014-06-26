@@ -1,4 +1,4 @@
---sqlrunner.fail-fast: false
+--sqlrunner.failfast: false
 DROP TABLE study;
 
 CREATE TABLE study (
