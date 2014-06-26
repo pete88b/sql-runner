@@ -28,7 +28,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  *
  * @author Peter Butterfill
  */
-@ContextConfiguration(locations = "classpath:test-context-oracle.xml")
+@ContextConfiguration(locations = "classpath:oracle/test-context-oracle.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
 public class SqlRunnerOracleIntegrationTest2 extends AbstractJUnit4SpringContextTests {
 
@@ -65,14 +65,14 @@ public class SqlRunnerOracleIntegrationTest2 extends AbstractJUnit4SpringContext
         if (!TestHelper.isOracleDb(dataSource)) {
             return;
         }
-        
-        TestHelper.integrationTestSetupOracle(dataSource);
+
+        final SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        instance.setAttribute("semicolon", ";");
+        instance.runFile("oracle/int-test-setup.sql");
 
         final List<Object> results = new ArrayList<Object>();
 
         final String studyName = "test study name";
-
-        final SqlRunner instance = sqlRunnerFactory.newSqlRunner();
 
         final SqlRunnerCallbackHandler callbackHandler = new SqlRunnerCallbackHandler() {
 

@@ -28,7 +28,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  *
  * @author Peter Butterfill
  */
-@ContextConfiguration(locations = "classpath:test-context-oracle.xml")
+@ContextConfiguration(locations = "classpath:oracle/test-context-oracle.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
 public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextTests {
 
@@ -76,7 +76,7 @@ public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextT
     public void testGetFilePathPrefix() {
         System.out.println("getFilePathPrefix");
         SqlRunner instance = sqlRunnerFactory.newSqlRunner();
-        String expResult = "/";
+        String expResult = "/oracle/";
         String result = instance.getFilePathPrefix();
         assertEquals(expResult, result);
     }
@@ -272,7 +272,7 @@ public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextT
         System.out.println("runFile");
         String fileName = "test_2.sql";
         SqlRunner instance = sqlRunnerFactory.newSqlRunner();
-        
+
         try {
             instance.runFile(fileName);
             fail("expected an exception becuase the bind parameter was not set");

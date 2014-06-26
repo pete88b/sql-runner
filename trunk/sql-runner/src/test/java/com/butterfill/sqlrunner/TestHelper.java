@@ -151,7 +151,7 @@ public class TestHelper {
                     "  study_id integer constraint study_pk primary key," +
                     "  study_name varchar2(200))");
             statement.execute("create sequence study_id");
-            statement.executeUpdate(
+            statement.execute(
                     "create or replace trigger bi_fer_study before insert on study\n" +
                     "for each row\n" +
                     "begin\n" +

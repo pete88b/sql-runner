@@ -96,7 +96,7 @@ public class SqlRunner {
      * The sql-runner fail fast comment prefix -
      * changing singleLineCommentPrefix will also change nameCommentPrefix.
      */
-    private String failFastCommentPrefix = "--sqlrunner.fail-fast:";
+    private String failFastCommentPrefix = "--sqlrunner.failfast:";
 
     /**
      * Attributes that may be used in the SQL file.
@@ -234,7 +234,7 @@ public class SqlRunner {
         }
         this.singleLineCommentPrefix = singleLineCommentPrefix;
         this.nameCommentPrefix = singleLineCommentPrefix + "sqlrunner.name:";
-        this.failFastCommentPrefix = singleLineCommentPrefix + "sqlrunner.fail-fast";
+        this.failFastCommentPrefix = singleLineCommentPrefix + "sqlrunner.failfast";
         return this;
     }
 
@@ -700,13 +700,13 @@ public class SqlRunner {
                 final String trimmedLine = line.trim();
 
                 if (trimmedLine.startsWith(nameCommentPrefix)) {
-                    // we've found a sql runner comment - this gives us the statement name
+                    // we've found a sql runner name comment - this gives us the statement name
                     statementName = trimmedLine.substring(nameCommentPrefix.length()).trim();
                     continue;
                 }
 
                 if (trimmedLine.startsWith(failFastCommentPrefix)) {
-                    // we've found a sql runner comment - this gives us the statement name
+                    // we've found the fail fast comment
                     failFast = !"false"
                             .equals(trimmedLine.substring(failFastCommentPrefix.length()).trim());
                     continue;

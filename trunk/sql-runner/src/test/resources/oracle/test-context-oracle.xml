@@ -22,7 +22,7 @@
 
     <bean class="com.butterfill.sqlrunner.SqlRunnerFactory">
         <property name="dataSource" ref="dataSource" />
-        <property name="filePathPrefix" value="/" />
+        <property name="filePathPrefix" value="/oracle/" />
     </bean>
 
 </beans>
