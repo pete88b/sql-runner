@@ -18,6 +18,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Ignore;
 import static org.mockito.Mockito.*;
+import static com.butterfill.sqlrunner.TestHelper.*;
 
 /**
  *
@@ -83,14 +84,14 @@ public class SqlRunnerTest {
     @Test
     public void testSetCharsetName() {
         System.out.println("setCharsetName");
-        assertEquals("UTF-8", instance.getCharsetName());
+        assertEquals("UTF-8", getFieldValue(SqlRunner.class, "charsetName", instance));
 
         String charsetName = "couldBeAnything";
 
         SqlRunner result = instance.setCharsetName(charsetName);
         assertSame(result, instance);
-        assertEquals(charsetName, result.getCharsetName());
-        assertEquals(charsetName, instance.getCharsetName());
+        assertEquals(charsetName, getFieldValue(SqlRunner.class, "charsetName", instance));
+        assertEquals(charsetName, getFieldValue(SqlRunner.class, "charsetName", result));
     }
 
     /**
@@ -100,25 +101,25 @@ public class SqlRunnerTest {
     public void testSetFilePathPrefix() {
         System.out.println("setFilePathPrefix");
 
-        assertEquals("", instance.getFilePathPrefix());
+        assertEquals("", getFieldValue(SqlRunner.class, "filePathPrefix", instance));
 
         String filePathPrefix = "/com/test/scripts/mysql/";
 
         SqlRunner result = instance.setFilePathPrefix(filePathPrefix);
         assertSame(result, instance);
-        assertEquals(filePathPrefix, instance.getFilePathPrefix());
-        assertEquals(filePathPrefix, result.getFilePathPrefix());
+        assertEquals(filePathPrefix, getFieldValue(SqlRunner.class, "filePathPrefix", instance));
+        assertEquals(filePathPrefix, getFieldValue(SqlRunner.class, "filePathPrefix", result));
     }
 
     /**
      * Test of setAttributePrefix method, of class SqlRunner.
      */
     @Test
-    public void testSetAttributePrefix() {
+    public void testSetAttributePrefixAndPostifx() {
         System.out.println("setAttributePrefix");
 
-        assertEquals("#{", instance.getAttributePrefix());
-        assertEquals("}", instance.getAttributePostfix());
+        assertEquals("#{", getFieldValue(SqlRunner.class, "attributePrefix", instance));
+        assertEquals("}", getFieldValue(SqlRunner.class, "attributePostfix", instance));
 
         String attributeNamePrefix = "<";
         String attributeNamePostfix = ">";
@@ -126,13 +127,13 @@ public class SqlRunnerTest {
         SqlRunner result = instance.setAttributePrefixAndPostfix(
                 attributeNamePrefix, attributeNamePostfix);
         assertSame(result, instance);
-        assertEquals(attributeNamePrefix, result.getAttributePrefix());
-        assertEquals(attributeNamePostfix, result.getAttributePostfix());
+        assertEquals(attributeNamePrefix, getFieldValue(SqlRunner.class, "attributePrefix", result));
+        assertEquals(attributeNamePostfix, getFieldValue(SqlRunner.class, "attributePostfix", result));
 
         result = instance.setAttributePrefixAndPostfix(null, null);
         assertSame(result, instance);
-        assertEquals("", result.getAttributePrefix());
-        assertEquals("", result.getAttributePostfix());
+        assertEquals("", getFieldValue(SqlRunner.class, "attributePrefix", result));
+        assertEquals("", getFieldValue(SqlRunner.class, "attributePostfix", result));
     }
 
     /**
@@ -170,9 +171,9 @@ public class SqlRunnerTest {
 
     @Test
     public void testSetSingleLineCommentPrefix() {
-        assertEquals("--", instance.getSingleLineCommentPrefix());
+        assertEquals("--", getFieldValue(SqlRunner.class, "singleLineCommentPrefix", instance));
         instance.setSingleLineCommentPrefix("#");
-        assertEquals("#", instance.getSingleLineCommentPrefix());
+        assertEquals("#", getFieldValue(SqlRunner.class, "singleLineCommentPrefix", instance));
         assertEquals("#sqlrunner.name:",
                 TestHelper.getFieldValue(SqlRunner.class, "nameCommentPrefix", instance));
     }

@@ -147,26 +147,6 @@ public class SqlRunner {
         this.defaultResultSetNextRowCallbackHandler = resultSetNextRowCallbackHandler;
     }
 
-    public String getCharsetName() {
-        return charsetName;
-    }
-
-    public String getFilePathPrefix() {
-        return filePathPrefix;
-    }
-
-    public String getAttributePrefix() {
-        return attributePrefix;
-    }
-
-    public String getAttributePostfix() {
-        return attributePostfix;
-    }
-
-    public String getSingleLineCommentPrefix() {
-        return singleLineCommentPrefix;
-    }
-
     /**
      * Sets the name of the character set of the SQL script file - UTF-8 by default.
      * @param charsetName
@@ -264,9 +244,13 @@ public class SqlRunner {
     }
 
     /**
-     *
+     * Sets a handler for a statement.
      * @param statementName
+     *   The name of the statement.
+     *   Can be null, which is useful if you want a handler when calling
+     *   {@link SqlRunner#run(java.lang.String) }.
      * @param handler
+     *   The handler.
      * @return
      *   this instance.
      */
@@ -277,11 +261,13 @@ public class SqlRunner {
     }
 
     /**
-     *
+     * Sets a result set handler for the statement.
      * @param statementName
+     *   The name of the statement.
      *   Can be null, which is useful if you want a handler when calling
      *   {@link SqlRunner#run(java.lang.String) }.
      * @param handler
+     *   The handler.
      * @return
      *   this instance.
      */
@@ -532,6 +518,16 @@ public class SqlRunner {
 
     }
 
+    /**
+     * Processes a result set, calling {@link SqlRunnerResultSetNextRowCallbackHandler#nextRow(
+     * com.butterfill.sqlrunner.SqlRunner, com.butterfill.sqlrunner.SqlRunnerStatement,
+     * java.sql.ResultSet, int) } for each row.
+     *
+     * @param resultSet
+     *   The result set to process.
+     * @param sqlRunnerStatement
+     *   The statement that we ran to get the result set.
+     */
     private void processResultSet(
             final ResultSet resultSet, final SqlRunnerStatement sqlRunnerStatement) {
         try {
