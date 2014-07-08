@@ -13,7 +13,7 @@ import javax.sql.DataSource;
  * @author Peter Butterfill
  */
 public class SqlRunnerFactory {
-//TODO: make sure all config is included here
+
     /**
      * The data source to use when executing scripts.
      */
@@ -51,9 +51,26 @@ public class SqlRunnerFactory {
     private String attributeNamePostfix = "}";
 
     /**
+     * Lines with this prefix will be treated as single line comments.
+     */
+    private String singleLineCommentPrefix = "--";
+
+    /**
      * Attributes that may be used in the SQL file.
      */
     private Map<String, String> attributeMap;
+
+    /**
+     * Map of callback handlers.
+     * Key is a statement name (set via a sql-runner comment or null).
+     */
+    private Map<String, SqlRunnerCallbackHandler> callbackHandlerMap;
+
+    /**
+     * Map of result set next row callback handlers.
+     * Key is a statement name (set via a sql-runner comment or null).
+     */
+    private Map<String, SqlRunnerResultSetNextRowCallbackHandler> rsnrCallbackHandlerMap;
 
     public DataSource getDataSource() {
         return dataSource;
@@ -67,7 +84,7 @@ public class SqlRunnerFactory {
         return defaultCallbackHandler;
     }
 
-    public void setDefaultCallbackHandler(SqlRunnerCallbackHandler defaultCallbackHandler) {
+    public void setDefaultCallbackHandler(final SqlRunnerCallbackHandler defaultCallbackHandler) {
         this.defaultCallbackHandler = defaultCallbackHandler;
     }
 
@@ -75,7 +92,8 @@ public class SqlRunnerFactory {
         return defaultResultSetNextRowCallbackHandler;
     }
 
-    public void setDefaultResultSetNextRowCallbackHandler(SqlRunnerResultSetNextRowCallbackHandler defaultResultSetNextRowCallbackHandler) {
+    public void setDefaultResultSetNextRowCallbackHandler(
+            final SqlRunnerResultSetNextRowCallbackHandler defaultResultSetNextRowCallbackHandler) {
         this.defaultResultSetNextRowCallbackHandler = defaultResultSetNextRowCallbackHandler;
     }
 
@@ -111,6 +129,14 @@ public class SqlRunnerFactory {
         this.attributeNamePostfix = attributeNamePostfix;
     }
 
+    public String getSingleLineCommentPrefix() {
+        return singleLineCommentPrefix;
+    }
+
+    public void setSingleLineCommentPrefix(String singleLineCommentPrefix) {
+        this.singleLineCommentPrefix = singleLineCommentPrefix;
+    }
+
     public Map<String, String> getAttributeMap() {
         return attributeMap;
     }
@@ -118,6 +144,26 @@ public class SqlRunnerFactory {
     public void setAttributeMap(final Map<String, String> attributeMap) {
         this.attributeMap = attributeMap;
     }
+
+    public Map<String, SqlRunnerCallbackHandler> getCallbackHandlerMap() {
+        return callbackHandlerMap;
+    }
+
+    public void setCallbackHandlerMap(
+            final Map<String, SqlRunnerCallbackHandler> callbackHandlerMap) {
+        this.callbackHandlerMap = callbackHandlerMap;
+    }
+
+    public Map<String, SqlRunnerResultSetNextRowCallbackHandler>
+        getRunnerResultSetNextRowCallbackHandlerMap() {
+        return rsnrCallbackHandlerMap;
+    }
+
+    public void setRunnerResultSetNextRowCallbackHandlerMap(
+            final Map<String, SqlRunnerResultSetNextRowCallbackHandler> rsnrCallbackHandlerMap) {
+        this.rsnrCallbackHandlerMap = rsnrCallbackHandlerMap;
+    }
+
 
     /**
      * Returns a new SQL runner.
@@ -129,11 +175,26 @@ public class SqlRunnerFactory {
                 dataSource, defaultCallbackHandler, defaultResultSetNextRowCallbackHandler)
                 .setCharsetName(charsetName)
                 .setFilePathPrefix(filePathPrefix)
-                .setAttributePrefixAndPostfix(attributeNamePrefix, attributeNamePostfix);
+                .setAttributePrefixAndPostfix(attributeNamePrefix, attributeNamePostfix)
+                .setSingleLineCommentPrefix(singleLineCommentPrefix);
 
         if (attributeMap != null) {
             for (Map.Entry<String, String> entry : attributeMap.entrySet()) {
                 result.setAttribute(entry.getKey(), entry.getValue());
+            }
+        }
+
+        if (callbackHandlerMap != null) {
+            for (Map.Entry<String, SqlRunnerCallbackHandler> entry
+                    : callbackHandlerMap.entrySet()) {
+                result.setCallbackHandler(entry.getKey(), entry.getValue());
+            }
+        }
+
+        if (rsnrCallbackHandlerMap != null) {
+            for (Map.Entry<String, SqlRunnerResultSetNextRowCallbackHandler> entry
+                    : rsnrCallbackHandlerMap.entrySet()) {
+                result.setResultSetNextRowCallbackHandler(entry.getKey(), entry.getValue());
             }
         }
 
