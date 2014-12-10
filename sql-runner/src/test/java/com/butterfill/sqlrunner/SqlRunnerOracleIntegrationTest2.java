@@ -66,9 +66,9 @@ public class SqlRunnerOracleIntegrationTest2 extends AbstractJUnit4SpringContext
             return;
         }
 
+        TestHelper.integrationTestSetupOracle(dataSource);
+
         final SqlRunner instance = sqlRunnerFactory.newSqlRunner();
-        instance.setAttribute("semicolon", ";");
-        instance.runFile("oracle/int-test-setup.sql");
 
         final List<Object> results = new ArrayList<Object>();
 
@@ -79,7 +79,7 @@ public class SqlRunnerOracleIntegrationTest2 extends AbstractJUnit4SpringContext
             public PreparedStatement prepareStatement(
                     Connection connection, SqlRunnerStatement sqlRunnerStatement)
                     throws SQLException {
-                // tall the DB we want the value of study_id back
+                // tell the DB we want the value of study_id back
                 PreparedStatement preparedStatement = connection.prepareStatement(
                         sqlRunnerStatement.getSql(), new String[]{"study_id"});
                 // set the study name (1st parameter in the insert statement)

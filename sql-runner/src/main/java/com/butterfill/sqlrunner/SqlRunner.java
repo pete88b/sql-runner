@@ -224,13 +224,31 @@ public class SqlRunner {
      *   Name of the attribute.
      * @param attributeValue
      *   Value of the attribute - which will be converted to a String.
+     *   This method will use an empty string for the attribute value, if attributeValue is null.
      * @return
      *   this instance.
      */
     public SqlRunner setAttribute(final String attribute, final Object attributeValue) {
+        return setAttribute(attribute, attributeValue, "");
+
+    }
+
+    /**
+     * Sets the value of a attribute on this instance.
+     * @param attribute
+     *   Name of the attribute.
+     * @param attributeValue
+     *   Value of the attribute - which will be converted to a String.
+     * @param valueIfNull
+     *   Value to use if attributeValue is null.
+     * @return
+     *   this instance.
+     */
+    public SqlRunner setAttribute(
+            final String attribute, final Object attributeValue, final String valueIfNull) {
         final String stringAttributeValue;
         if (attributeValue == null) {
-            stringAttributeValue = "";
+            stringAttributeValue = valueIfNull;
         } else if (attributeValue instanceof String) {
             stringAttributeValue = (String) attributeValue;
         } else {
