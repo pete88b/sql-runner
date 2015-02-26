@@ -19,12 +19,22 @@ mvn.bat -Dsurefire.exclude=ExclUdeNOTHING -Dfile.encoding=UTF-8 clean install
 
 == Database set-up Details ==
 
-To run integration tests you need access to a database. Here's how I set things up with an Oracle database running on my machine;
-  # To create the DB account (sqlrunner_test). e.g. Run the following commands via SQL*Plus; 
+To run integration tests you need access to an Oracle database and a Derby/Java DB. Here's how I set things up with both databases running on my machine;
+  # To create the Oracle DB account (sqlrunner_test). e.g. Run the following commands via SQL*Plus; 
     * CREATE USER sqlrunner_test DEFAULT TABLESPACE users IDENTIFIED BY weak_pw;
     * GRANT DBA TO sqlrunner_test;
 
-The default DB connection details are (see src/test/resources/test-context.xml); 
+The default DB connection details are (see src/test/resources/oracle/test-context-oracle.xml); 
   # url=jdbc:oracle:thin:@//localhost:1521/xe
-  # user=sqlrunner_test
+  # username=sqlrunner_test
+  # password=weak_pw
+
+  # To create the Derby database (sqlrunner_test); 
+    * Database Name: sqlrunner_test
+    * User Name: sqlrunner_test
+    * Password: weak_pw
+
+The default DB connection details are (see src/test/resources/derby/test-context-derby.xml); 
+  # url=jdbc:derby://localhost:1527/sqlrunner_test
+  # username=sqlrunner_test
   # password=weak_pw
