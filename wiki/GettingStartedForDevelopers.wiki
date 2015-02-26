@@ -2,6 +2,10 @@
 
 = Introduction =
 
+  # Get the Oracle JDBC drive in your local maven repository
+    # Download Oracle JDBC drivers for Java 5
+    # mvn install:install-file -D"file=./ojdbc5-11.2.0.4.jar" -D"groupId=oracle" -D"artifactId=oracle-jdbc5" -D"version=11.2.0.4" -D"packaging=jar"
+
 If you want to build without integration testing, just do a maven install;
 {{{
 mvn.bat -Dfile.encoding=UTF-8 clean install
@@ -16,9 +20,6 @@ mvn.bat -Dsurefire.exclude=ExclUdeNOTHING -Dfile.encoding=UTF-8 clean install
 == Database set-up Details ==
 
 To run integration tests you need access to a database. Here's how I set things up with an Oracle database running on my machine;
-  # Get the Oracle JDBC drive in your local maven repository
-    # Download Oracle JDBC drivers for Java 5
-    # mvn install:install-file -D"file=./ojdbc5-11.2.0.4.jar" -D"groupId=oracle" -D"artifactId=oracle-jdbc5" -D"version=11.2.0.4" -D"packaging=jar"
   # To create the DB account (sqlrunner_test). e.g. Run the following commands via SQL*Plus; 
     * CREATE USER sqlrunner_test DEFAULT TABLESPACE users IDENTIFIED BY weak_pw;
     * GRANT DBA TO sqlrunner_test;
