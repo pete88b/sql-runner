@@ -191,6 +191,7 @@ public class SqlRunnerTest {
         SqlRunnerStatement statement = result.get(0);
         assertEquals(null, statement.getUpdateCount());
         assertEquals(null, statement.getName());
+        assertEquals(null, statement.getException());
         String expectedSql = "update a" + LINE_SEPARATOR
                 + "   set b = 2" + LINE_SEPARATOR
                 + " where 1 = 2";
@@ -199,6 +200,7 @@ public class SqlRunnerTest {
         statement = result.get(1);
         assertEquals(null, statement.getUpdateCount());
         assertEquals("query1", statement.getName());
+        assertEquals(null, statement.getException());
         expectedSql = "SELECT *" + LINE_SEPARATOR + "  FROM dual";
         assertEquals(expectedSql, statement.getSql());
 
@@ -230,6 +232,7 @@ public class SqlRunnerTest {
         assertEquals(Integer.valueOf("-3"), result.getUpdateCount());
         assertEquals("update emp set a = 'a'", result.getSql());
         assertEquals(Boolean.FALSE, result.getResultOfExecutionWasResultSet());
+        assertEquals(null, result.getException());
     }
 
     @Test(expected = NullPointerException.class)
@@ -241,11 +244,53 @@ public class SqlRunnerTest {
     }
 
     @Test(expected = NullPointerException.class)
+    public void testRunNullSql2() throws Exception {
+        System.out.println("run");
+        String sql = null;
+        instance.run(sql, null);
+
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRunNullSql3() throws Exception {
+        System.out.println("run");
+        String sql = "some sql";
+        instance.run(sql, null);
+
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRunNullSql4() throws Exception {
+        System.out.println("run");
+        List<SqlRunnerStatement> sqlRunnerStatements = null;
+        instance.run(sqlRunnerStatements);
+
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRunNullSql5() throws Exception {
+        System.out.println("run");
+        List<SqlRunnerStatement> sqlRunnerStatements = null;
+        instance.run(sqlRunnerStatements, null);
+
+    }
+
+    @Test(expected = NullPointerException.class)
     public void testRunNullFileName() throws Exception {
         System.out.println("run");
-
         instance.runFile(null);
+    }
 
+    @Test(expected = NullPointerException.class)
+    public void testRunNullFileName2() throws Exception {
+        System.out.println("run");
+        instance.runFile(null, null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRunNullFileName3() throws Exception {
+        System.out.println("run");
+        instance.runFile("a-file", null);
     }
 
     @Test(expected = SqlRunnerException.class)
