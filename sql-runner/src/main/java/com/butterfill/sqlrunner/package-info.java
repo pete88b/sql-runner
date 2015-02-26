@@ -78,7 +78,8 @@
  * {@link com.butterfill.sqlrunner.SqlRunnerCallbackHandler}.
  * See unit tests for examples.
  * <br/>
- * Binding values to "in" parameters can be done with a {@link com.butterfill.sqlrunner.SqlRunnerCallbackHandler}.
+ * Binding values to "in" parameters can be done with a
+ * {@link com.butterfill.sqlrunner.SqlRunnerCallbackHandler}.
  *
  * <pre>
  *    public void demoWithBindingParamter() {

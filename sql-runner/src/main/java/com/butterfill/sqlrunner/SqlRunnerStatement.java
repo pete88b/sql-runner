@@ -1,6 +1,5 @@
 package com.butterfill.sqlrunner;
 
-import com.butterfill.sqlrunner.util.DynamicResultSetNextRowCallbackHandlerImpl;
 import java.util.logging.Logger;
 
 /**
@@ -199,7 +198,7 @@ public class SqlRunnerStatement {
     }
 
     /**
-     * Sets the exception raised by running this statement,
+     * Sets the exception raised by running this statement.
      * @param exception
      *   The exception raised by running this statement,
      */

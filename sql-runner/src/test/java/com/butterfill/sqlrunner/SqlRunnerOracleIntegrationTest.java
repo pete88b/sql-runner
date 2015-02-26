@@ -156,6 +156,41 @@ public class SqlRunnerOracleIntegrationTest extends AbstractJUnit4SpringContextT
     }
 
     /**
+     * same as the test above but uses in-line SQL instead of test_1.sql.
+     */
+    @Test
+    public void testRunListOfStatements() {
+        if (!TestHelper.isOracleDb(dataSource)) {
+            return;
+        }
+        System.out.println("");
+
+        List<String> sqlList = new ArrayList<String>();
+        sqlList.add("create table a as\n" +
+                "select rownum as number_col, 'a' as text_col\n" +
+                "  from all_objects\n" +
+                " where rownum < 2");
+
+        sqlList.add("select * from a");
+
+        sqlList.add("drop table a");
+
+        SqlRunner instance = sqlRunnerFactory.newSqlRunner();
+        List<SqlRunnerStatement> result = instance.run(instance.toSqlRunnerStatements(sqlList));
+        assertEquals(3, result.size());
+
+        assertEquals(Integer.valueOf("1"), result.get(0).getUpdateCount());
+        assertEquals(null, result.get(1).getUpdateCount());
+        assertEquals(Integer.valueOf("0"), result.get(2).getUpdateCount());
+
+        Map<String, String> attributeMap = (Map<String, String>)
+                TestHelper.getFieldValue(SqlRunner.class, "attributeMap", instance);
+        assertEquals("1", attributeMap.get("NUMBER_COL.1"));
+        assertEquals("a", attributeMap.get("TEXT_COL.1"));
+
+    }
+
+    /**
      * Test of runFile method, of class SqlRunner.
      */
     @Test
