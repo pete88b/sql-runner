@@ -2,7 +2,7 @@
 
 = Introduction =
 
-Because the test code needs the Oracle JDBC drivers to compile, you'll need them in your local maven repository
+Because the test code needs the Oracle JDBC drivers to compile, you'll need them in your local maven repository;
   # Download Oracle JDBC drivers for Java 5
   # mvn install:install-file -D"file=./ojdbc5-11.2.0.4.jar" -D"groupId=oracle" -D"artifactId=oracle-jdbc5" -D"version=11.2.0.4" -D"packaging=jar"
 
