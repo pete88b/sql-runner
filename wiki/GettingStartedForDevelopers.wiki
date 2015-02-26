@@ -32,7 +32,7 @@ The default DB connection details are (see src/test/resources/oracle/test-contex
   # username=sqlrunner_test
   # password=weak_pw
 
-To create the Derby database (sqlrunner_test); 
+Create a Derby database with the following details; 
   * Database Name: sqlrunner_test
   * User Name: sqlrunner_test
   * Password: weak_pw
