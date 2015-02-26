@@ -235,8 +235,8 @@ public class SqlRunnerTest {
     @Test(expected = NullPointerException.class)
     public void testRunNullSql() throws Exception {
         System.out.println("run");
-
-        instance.run(null);
+        String sql = null;
+        instance.run(sql);
 
     }
 

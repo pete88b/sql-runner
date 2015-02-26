@@ -214,7 +214,7 @@ public class SqlRunner {
         }
         this.singleLineCommentPrefix = singleLineCommentPrefix;
         this.nameCommentPrefix = singleLineCommentPrefix + "sqlrunner.name:";
-        this.failFastCommentPrefix = singleLineCommentPrefix + "sqlrunner.failfast";
+        this.failFastCommentPrefix = singleLineCommentPrefix + "sqlrunner.failfast:";
         return this;
     }
 
@@ -296,6 +296,24 @@ public class SqlRunner {
     }
 
     /**
+     * Converts a list of SQL strings to a list of SqlRunnerStatements.
+     * @param sqlList
+     *   A list of SQL strings.
+     * @return
+     *   A list of SqlRunnerStatements.
+     */
+    public List<SqlRunnerStatement> toSqlRunnerStatements(final List<String> sqlList) {
+        final List<SqlRunnerStatement> sqlRunnerStatements = new ArrayList<SqlRunnerStatement>();
+
+        for (String sql : sqlList) {
+            sqlRunnerStatements.add(new SqlRunnerStatement(null, sql));
+        }
+
+        return sqlRunnerStatements;
+
+    }
+
+    /**
      * Runs all SQL statements read from the specified file.
      * This method will;
      * <ul>
@@ -336,8 +354,48 @@ public class SqlRunner {
             throw new NullPointerException("fileName must not be null");
         }
 
-        // read file into string and set property values
-        final List<SqlRunnerStatement> sqlRunnerStatements = readFile(fileName);
+        return run(readFile(fileName));
+
+    }
+
+    /**
+     * Runs a list of SqlRunnerStatements.
+     * This method will;
+     * <ul>
+     *   <li>
+     *     Replace all attributes in the SQL statements that have been set by calls to
+     *     setAttributeValues(String)
+     *   </li>
+     *   <li>Get a connection and disable auto commit</li>
+     *   <li>Run the each statement using PreparedStatement#executeUpdate()</li>
+     *   <li>If running a statement throws an exception;</li>
+     *   <ul>
+     *     <li>Rollback the transaction</li>
+     *     <li>and throw a SqlRunnerException</li>
+     *   </ul>
+     *   <li>If all statements run without error;</li>
+     *   <ul>
+     *     <li>Commit the transaction</li>
+     *     <li>and return the result</li>
+     *   </ul>
+     *   <li>Return the auto commit setting of the connection to what is was before this call</li>
+     *   <li>
+     *     Close the connection
+     *     (i.e. return it to the connection to the pool if using a pooled data source)
+     *   </li>
+     * </ul>
+     *
+     * @param sqlRunnerStatements
+     *   A list of SqlRunnerStatements that you want to run.
+     * @return
+     *   sqlRunnerStatements, which will have been updated as they are executed.
+     */
+    public List<SqlRunnerStatement> run(
+            final List<SqlRunnerStatement> sqlRunnerStatements) {
+        if (sqlRunnerStatements == null) {
+            throw new NullPointerException("sqlRunnerStatements must not be null");
+        }
+
         final Connection connection = getConnection();
 
         try {
@@ -433,9 +491,27 @@ public class SqlRunner {
             throw new NullPointerException("connection must not be null");
         }
 
-        // read file into string and set property values
-        final List<SqlRunnerStatement> sqlRunnerStatements = readFile(fileName);
+        return run(readFile(fileName), connection);
 
+    }
+
+    /**
+     * Runs a list of SqlRunnerStatements using the specified connection.
+     * This method does the same as {@link #run(java.util.List) } but uses the specified
+     * connection, rather than getting a connection from the datasource.
+     * <p>
+     * This method might be useful if you needed to use SqlRunner and Hibernate to access a DB in
+     * the same transaction. Maybe using Hibernates Session#doWork(Work) method.
+     * </p>
+     * @param sqlRunnerStatements
+     *   A list of SqlRunnerStatements that you want to run.
+     * @param connection
+     *   The connection this method will use to run the SQL.
+     * @return
+     *   sqlRunnerStatements, which will have been updated as they are executed.
+     */
+    public List<SqlRunnerStatement> run(
+            final List<SqlRunnerStatement> sqlRunnerStatements, final Connection connection) {
         for (SqlRunnerStatement sqlRunnerStatement : sqlRunnerStatements) {
             sqlRunnerStatement.setSql(replaceAttributes(sqlRunnerStatement.getSql()));
             execute(connection, sqlRunnerStatement);
