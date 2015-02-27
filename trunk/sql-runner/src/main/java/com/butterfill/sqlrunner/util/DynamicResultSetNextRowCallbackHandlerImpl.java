@@ -26,15 +26,34 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * Converts the results of a SELECT statement into a list of maps and saves the list as the result
+ * of a SqlRunnerStatement.
  * @author Peter Butterfill
  */
 public class DynamicResultSetNextRowCallbackHandlerImpl
         implements SqlRunnerResultSetNextRowCallbackHandler {
 
+    /**
+     * The SQL to Java name converter used by this instance.
+     */
     private static final SqlNameToJavaNameHelper SQL_NAME_TO_JAVA_NAME_HELPER =
             new SqlNameToJavaNameHelper();
 
+    /**
+     * Process the current row of the specified result set -
+     * converts the current row of the result set into a map and add it to the results of
+     * sqlRunnerStatement.
+     * @param sqlRunner
+     *   Is ignored.
+     * @param sqlRunnerStatement
+     *   We save the result on this statement.
+     * @param resultSet
+     *   The result set being processed.
+     * @param rowNumber
+     *   Number of the row that we're processing.
+     * @throws SQLException
+     *   If working with the result set throws an exception.
+     */
     public void nextRow(final SqlRunner sqlRunner, final SqlRunnerStatement sqlRunnerStatement,
             final ResultSet resultSet, final int rowNumber) throws SQLException {
         // get metadata for every row to keep this method stateless - hope the JDBC drivers
