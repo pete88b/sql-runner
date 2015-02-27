@@ -25,11 +25,13 @@ import javax.sql.DataSource;
  *
  * <p>This class is not thread safe.</p>
  *
- * Please see {@link com.butterfill.sqlrunner} description for usage details.
+ * <p>Please see {@link com.butterfill.sqlrunner} description for usage details.</p>
+ *
+ * <p>Note: this class is final as it has not been designed to be extended.</p>
  *
  * @author Peter Butterfill
  */
-public class SqlRunner {
+public final class SqlRunner {
 
     /**
      * The name of this class.
@@ -317,30 +319,13 @@ public class SqlRunner {
      * Runs all SQL statements read from the specified file.
      * This method will;
      * <ul>
-     *   <li>read the specified file from the classpath (using filePathPrefix)</li>
-     *   <li>
-     *     Replace all attributes in the file contents that have been set by calls to
-     *     setAttributeValues(String)
-     *   </li>
+     *   <li>Read the specified file from the classpath (using filePathPrefix)</li>
      *   <li>
      *     Splits the file contents into statements - statements are terminated by a semi-colon.
      *   </li>
-     *   <li>Get a connection and disable auto commit</li>
-     *   <li>Run the each statement using PreparedStatement#executeUpdate()</li>
-     *   <li>If running a statement throws an exception;</li>
-     *   <ul>
-     *     <li>Rollback the transaction</li>
-     *     <li>and throw a SqlRunnerException</li>
-     *   </ul>
-     *   <li>If all statements run without error;</li>
-     *   <ul>
-     *     <li>Commit the transaction</li>
-     *     <li>and return the result</li>
-     *   </ul>
-     *   <li>Return the auto commit setting of the connection to what is was before this call</li>
      *   <li>
-     *     Close the connection
-     *     (i.e. return it to the connection to the pool if using a pooled data source)
+     *     Creates a list of SqlRunnerStatements, one for each statement in the file, and calls
+     *     {@link #run(java.util.List) }
      *   </li>
      * </ul>
      *
@@ -368,12 +353,18 @@ public class SqlRunner {
      *   </li>
      *   <li>Get a connection and disable auto commit</li>
      *   <li>Run the each statement using PreparedStatement#executeUpdate()</li>
-     *   <li>If running a statement throws an exception;</li>
+     *   <li>If running a "fail fast" statement throws an exception;</li>
      *   <ul>
-     *     <li>Rollback the transaction</li>
+     *     <li>Save the exception on the SqlRunnerStatement</li>
+     *     <li>rollback the transaction</li>
      *     <li>and throw a SqlRunnerException</li>
      *   </ul>
-     *   <li>If all statements run without error;</li>
+     *   <li>If running a non-"fail fast" statement throws an exception;</li>
+     *   <ul>
+     *     <li>Save the exception on the SqlRunnerStatement</li>
+     *     <li>Note: we don't rollback and we don't throw the exception</li>
+     *   </ul>
+     *   <li>If all "fail fast" statements run without error;</li>
      *   <ul>
      *     <li>Commit the transaction</li>
      *     <li>and return the result</li>
@@ -388,7 +379,7 @@ public class SqlRunner {
      * @param sqlRunnerStatements
      *   A list of SqlRunnerStatements that you want to run.
      * @return
-     *   sqlRunnerStatements, which will have been updated as they are executed.
+     *   A new list of SqlRunnerStatements, which will have been updated as they are executed.
      */
     public List<SqlRunnerStatement> run(
             final List<SqlRunnerStatement> sqlRunnerStatements) {
@@ -396,12 +387,18 @@ public class SqlRunner {
             throw new NullPointerException("sqlRunnerStatements must not be null");
         }
 
+        final List<SqlRunnerStatement> result = new ArrayList<SqlRunnerStatement>();
+
         final Connection connection = getConnection();
 
         try {
             for (SqlRunnerStatement sqlRunnerStatement : sqlRunnerStatements) {
-                sqlRunnerStatement.setSql(replaceAttributes(sqlRunnerStatement.getSql()));
-                execute(connection, sqlRunnerStatement);
+                final SqlRunnerStatement statementToExecute = new SqlRunnerStatement(
+                        sqlRunnerStatement.getName(),
+                        replaceAttributes(sqlRunnerStatement.getSql()),
+                        sqlRunnerStatement.getFailFast());
+                result.add(statementToExecute);
+                execute(connection, statementToExecute);
             }
 
         } catch (SqlRunnerException ex) {
@@ -412,7 +409,7 @@ public class SqlRunner {
 
         }
 
-        return sqlRunnerStatements;
+        return result;
 
     }
 
@@ -470,7 +467,8 @@ public class SqlRunner {
     /**
      * Runs all SQL statements read from the specified file.
      * This method does the same as {@link #runFile(java.lang.String) } but uses the specified
-     * connection, rather than getting a connection from the datasource.
+     * connection, rather than getting a connection from the datasource and does not commit the
+     * transaction.
      * <p>
      * This method might be useful if you needed to use SqlRunner and Hibernate to access a DB in
      * the same transaction. Maybe using Hibernates Session#doWork(Work) method.
@@ -498,7 +496,8 @@ public class SqlRunner {
     /**
      * Runs a list of SqlRunnerStatements using the specified connection.
      * This method does the same as {@link #run(java.util.List) } but uses the specified
-     * connection, rather than getting a connection from the datasource.
+     * connection, rather than getting a connection from the datasource and does not commit the
+     * transaction.
      * <p>
      * This method might be useful if you needed to use SqlRunner and Hibernate to access a DB in
      * the same transaction. Maybe using Hibernates Session#doWork(Work) method.
@@ -508,23 +507,31 @@ public class SqlRunner {
      * @param connection
      *   The connection this method will use to run the SQL.
      * @return
-     *   sqlRunnerStatements, which will have been updated as they are executed.
+     *   A new list of SqlRunnerStatements, which will have been updated as they are executed.
      */
     public List<SqlRunnerStatement> run(
             final List<SqlRunnerStatement> sqlRunnerStatements, final Connection connection) {
+
+        final List<SqlRunnerStatement> result = new ArrayList<SqlRunnerStatement>();
+
         for (SqlRunnerStatement sqlRunnerStatement : sqlRunnerStatements) {
-            sqlRunnerStatement.setSql(replaceAttributes(sqlRunnerStatement.getSql()));
-            execute(connection, sqlRunnerStatement);
+            final SqlRunnerStatement statementToExecute = new SqlRunnerStatement(
+                    sqlRunnerStatement.getName(),
+                    replaceAttributes(sqlRunnerStatement.getSql()),
+                    sqlRunnerStatement.getFailFast());
+            result.add(statementToExecute);
+            execute(connection, statementToExecute);
         }
 
-        return sqlRunnerStatements;
+        return result;
 
     }
 
     /**
      * Runs a single SQL statement.
      * This method does the same as {@link #run(java.lang.String) } but uses the specified
-     * connection, rather than getting a connection from the datasource.
+     * connection, rather than getting a connection from the datasource and does not commit the
+     * transaction.
      * <p>
      * This method might be useful if you needed to use SqlRunner and Hibernate to access a DB in
      * the same transaction. Maybe using Hibernates Session#doWork(Work) method.
