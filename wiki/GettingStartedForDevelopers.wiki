@@ -11,7 +11,7 @@ If you want to build without integration testing, just do a maven install;
 mvn.bat -Dfile.encoding=UTF-8 clean install
 }}}
 
-If you want to run integration tests, you'll need to set-up a DB account to connect to and get the database drivers in your local maven repository.
+If you want to run integration tests, you'll need to set-up a DB account and get the database drivers in your local maven repository.
 The maven command to build and run integration tests is;
 {{{
 mvn.bat -Dsurefire.exclude=ExclUdeNOTHING -Dfile.encoding=UTF-8 clean install
