@@ -1,10 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!--
+    https://maven.apache.org/guides/mini/guide-central-repository-upload.html
+    http://central.sonatype.org/pages/requirements.html
+    http://central.sonatype.org/pages/apache-maven.html
+    -->
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.butterfill</groupId>
     <artifactId>sql-runner</artifactId>
-    <version>0.0.1</version>
+    <name>${project.groupId}:${project.artifactId}</name>
+    <url>https://code.google.com/p/sql-runner/</url>
+    <description>Provides an easy way to run SQL from Java.</description>
+    <!-- http://semver.org/ -->
+    <version>1.0.0</version>
     <packaging>jar</packaging>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Peter Butterfill</name>
+            <email>peter.butterfill@gmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:svn:http://sql-runner.googlecode.com/svn/trunk/</connection>
+        <developerConnection>scm:svn:https://sql-runner.googlecode.com/svn/trunk/</developerConnection>
+        <url>http://sql-runner.googlecode.com/svn/trunk/</url>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -16,6 +45,32 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
