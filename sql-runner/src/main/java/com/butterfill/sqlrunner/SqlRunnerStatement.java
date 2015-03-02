@@ -168,7 +168,7 @@ public class SqlRunnerStatement {
     /**
      * Returns the "result" of running this statement
      * - which was probably set by a callback handler after processing a ResultSet.
-     * @see DynamicResultSetNextRowCallbackHandlerImpl
+     * @see com.butterfill.sqlrunner.util.DynamicResultSetNextRowCallbackHandlerImpl
      * @return
      *   The "result" of running this statement.
      */
