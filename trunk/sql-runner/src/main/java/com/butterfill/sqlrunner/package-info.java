@@ -6,23 +6,28 @@
  * runs any number of statements read from a file.<br/>
  * {@link com.butterfill.sqlrunner.SqlRunner#run(java.lang.String)}
  * runs a single statement (passed in as a string).
+ * <br/>
+ * {@link com.butterfill.sqlrunner.SqlRunner#run(java.util.List)}
+ * runs a list of {@link com.butterfill.sqlrunner.SqlRunnerStatement}.
  * </p>
  *
  * <p>
- * The {@link com.butterfill.sqlrunner.SqlRunner#runFile(java.lang.String, java.sql.Connection)} and
- * {@link com.butterfill.sqlrunner.SqlRunner#run(java.lang.String, java.sql.Connection)}
+ * The {@link com.butterfill.sqlrunner.SqlRunner#runFile(java.lang.String, java.sql.Connection)},
+ * {@link com.butterfill.sqlrunner.SqlRunner#run(java.lang.String, java.sql.Connection)} and
+ * {@link com.butterfill.sqlrunner.SqlRunner#run(java.util.List, java.sql.Connection) }
  * methods do the same as
- * {@link com.butterfill.sqlrunner.SqlRunner#runFile(java.lang.String)} and
- * {@link com.butterfill.sqlrunner.SqlRunner#run(java.lang.String)}
+ * {@link com.butterfill.sqlrunner.SqlRunner#runFile(java.lang.String)},
+ * {@link com.butterfill.sqlrunner.SqlRunner#run(java.lang.String)} and
+ * {@link com.butterfill.sqlrunner.SqlRunner#run(java.util.List)}
  * but use the specified connection, rather than getting a connection from the datasource.
  * <br/>
  * This might be useful if you needed to use SqlRunner and Hibernate to access a DB in the same
  * transaction. Maybe using Hibernates Session#doWork(Work) method.
  * </p>
  *
+ *
+ * <h3>Using attributes in your SQL statements.</h3>
  * <p>
- * Using attributes in your SQL statements.
- * <br/>
  * <strong>Using attributes could make your code vulnerable to SQL injection attacks.</strong>
  * <br/>
  * The default attributePrefix and attributePostfix are "#{" and "}" so if you call
@@ -66,6 +71,19 @@
  * The file is read from the class path using filePathPrefix + fileName.<br/>
  * Comments are removed before running a statement.<br/>
  * Statements are terminated by semi-columns.<br/>
+ * </p>
+ *
+ * <h3>Running lists of statements.</h3>
+ * <p>
+ * You can build a list of {@link com.butterfill.sqlrunner.SqlRunnerStatement}.
+ * If you have a list of SQL strings, you can easily convert them to SqlRunnerStatements using
+ * {@link com.butterfill.sqlrunner.SqlRunner#toSqlRunnerStatements(java.util.List) }. e.g.
+ * <pre>
+ *     List<String> sqlList = new ArrayList<String>();
+ *     ... add any number of SQL statement strings to the list ...
+ *     SqlRunner sqlRunner = sqlRunnerFactory.newSqlRunner();
+ *     List<SqlRunnerStatement> results = sqlRunner.run(sqlRunner.toSqlRunnerStatements(sqlList));
+ * </pre>
  * </p>
  *
  * <h3>Using parameters in your SQL statements.</h3>
