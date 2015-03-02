@@ -362,6 +362,12 @@ public class SqlRunnerFactoryTest {
         instance.setAttributeNamePostfix("AttributeNamePostfix");
         instance.setSingleLineCommentPrefix("SingleLineCommentPrefix");
 
+        assertEquals("CharsetName", instance.getCharsetName());
+        assertEquals("FilePathPrefix", instance.getFilePathPrefix());
+        assertEquals("AttributeNamePrefix", instance.getAttributeNamePrefix());
+        assertEquals("AttributeNamePostfix", instance.getAttributeNamePostfix());
+        assertEquals("SingleLineCommentPrefix", instance.getSingleLineCommentPrefix());
+
         SqlRunner result = instance.newSqlRunner();
 
         assertEquals(dataSource,
