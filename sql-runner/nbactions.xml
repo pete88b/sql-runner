@@ -22,8 +22,8 @@
         </properties>
     </action>
     <action>
-        <actionName>CUSTOM-clean deploy</actionName>
-        <displayName>clean deploy</displayName>
+        <actionName>CUSTOM-clean deploy (release)</actionName>
+        <displayName>clean deploy (release)</displayName>
         <goals>
             <goal>clean</goal>
             <goal>deploy</goal>
