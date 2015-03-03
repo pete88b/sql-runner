@@ -21,4 +21,15 @@
             <surefire.exclude>ExclUdeNOTHING</surefire.exclude>
         </properties>
     </action>
+    <action>
+        <actionName>CUSTOM-clean deploy</actionName>
+        <displayName>clean deploy</displayName>
+        <goals>
+            <goal>clean</goal>
+            <goal>deploy</goal>
+        </goals>
+        <activatedProfiles>
+            <activatedProfile>release</activatedProfile>
+        </activatedProfiles>
+    </action>
 </actions>
