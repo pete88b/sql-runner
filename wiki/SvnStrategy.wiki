@@ -1,4 +1,4 @@
-#Overview of how this project uses subversion.
+#summary Overview of how this project uses subversion.
 
 ===trunk===
 Development happens here.
