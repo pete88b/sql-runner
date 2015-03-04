@@ -1,0 +1,13 @@
+#Overview of how this project uses subversion.
+
+===trunk===
+Development happens here.
+
+===branches===
+Could be used to work on changes that would be disruptive to development in trunk - but are intended to be merged back into trunk.
+
+===tags===
+Used to keep a copy of trunk for all releases.
+
+This isn't meant to be restrictive, it's just a guide that can be updated as the project evolves.
+But as this is a little project, it makes sense to keep svn use simple.
