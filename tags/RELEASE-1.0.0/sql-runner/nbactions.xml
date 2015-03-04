@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+    <action>
+        <actionName>CUSTOM-clean install (Integration Tests)</actionName>
+        <displayName>clean install (Integration Tests)</displayName>
+        <goals>
+            <goal>clean</goal>
+            <goal>install</goal>
+        </goals>
+        <properties>
+            <surefire.exclude>ExclUdeNOTHING</surefire.exclude>
+        </properties>
+    </action>
+    <action>
+        <actionName>CUSTOM-site:site (Integration Tests)</actionName>
+        <displayName>site:site (Integration Tests)</displayName>
+        <goals>
+            <goal>site:site</goal>
+        </goals>
+        <properties>
+            <surefire.exclude>ExclUdeNOTHING</surefire.exclude>
+        </properties>
+    </action>
+    <action>
+        <actionName>CUSTOM-clean deploy (release)</actionName>
+        <displayName>clean deploy (release)</displayName>
+        <goals>
+            <goal>clean</goal>
+            <goal>deploy</goal>
+        </goals>
+        <activatedProfiles>
+            <activatedProfile>release</activatedProfile>
+        </activatedProfiles>
+    </action>
+</actions>
