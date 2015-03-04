@@ -1,5 +1,8 @@
 #summary Overview of how this project uses subversion.
 
+This isn't meant to be restrictive, it's just a guide that can be updated as the project evolves.
+But as this is a little project, it makes sense to keep svn use simple.
+
 ===trunk===
 Development happens here.
 
@@ -8,6 +11,4 @@ Could be used to work on changes that would be disruptive to development in trun
 
 ===tags===
 Used to keep a copy of trunk for all releases.
-
-This isn't meant to be restrictive, it's just a guide that can be updated as the project evolves.
-But as this is a little project, it makes sense to keep svn use simple.
+  e.g. svn/tags/RELEASE-1.0.0/sql-runner is a copy of the 1st release of sql-runner - and shouldn't be updated.
