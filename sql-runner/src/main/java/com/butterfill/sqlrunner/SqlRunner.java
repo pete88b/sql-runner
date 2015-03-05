@@ -271,6 +271,7 @@ public final class SqlRunner {
      *   {@link SqlRunner#run(java.lang.String) }.
      * @param handler
      *   The handler.
+     *   Pass null if you want to go back to using the default handler.
      * @return
      *   this instance.
      */
@@ -288,6 +289,7 @@ public final class SqlRunner {
      *   {@link SqlRunner#run(java.lang.String) }.
      * @param handler
      *   The handler.
+     *   Pass null if you want to go back to using the default handler.
      * @return
      *   this instance.
      */
@@ -305,6 +307,10 @@ public final class SqlRunner {
      *   A list of SqlRunnerStatements.
      */
     public List<SqlRunnerStatement> toSqlRunnerStatements(final List<String> sqlList) {
+        if (sqlList == null) {
+            throw new NullPointerException("sqlList must not be null");
+        }
+
         final List<SqlRunnerStatement> sqlRunnerStatements = new ArrayList<SqlRunnerStatement>();
 
         for (String sql : sqlList) {
@@ -335,10 +341,6 @@ public final class SqlRunner {
      *   One SqlRunnerResult for each statement executed.
      */
     public List<SqlRunnerStatement> runFile(final String fileName) {
-        if (fileName == null) {
-            throw new NullPointerException("fileName must not be null");
-        }
-
         return run(readFile(fileName));
 
     }
@@ -481,14 +483,6 @@ public final class SqlRunner {
      *   One SqlRunnerResult for each statement executed.
      */
     public List<SqlRunnerStatement> runFile(final String fileName, final Connection connection) {
-        if (fileName == null) {
-            throw new NullPointerException("fileName must not be null");
-        }
-
-        if (connection == null) {
-            throw new NullPointerException("connection must not be null");
-        }
-
         return run(readFile(fileName), connection);
 
     }
@@ -511,6 +505,13 @@ public final class SqlRunner {
      */
     public List<SqlRunnerStatement> run(
             final List<SqlRunnerStatement> sqlRunnerStatements, final Connection connection) {
+        if (sqlRunnerStatements == null) {
+            throw new NullPointerException("sqlRunnerStatements must not be null");
+        }
+
+        if (connection == null) {
+            throw new NullPointerException("connection must not be null");
+        }
 
         final List<SqlRunnerStatement> result = new ArrayList<SqlRunnerStatement>();
 
@@ -682,7 +683,6 @@ public final class SqlRunner {
         }
     }
 
-
     /**
      * Returns a connection from the data source - after disabling auto commit.
      * @return
@@ -706,7 +706,7 @@ public final class SqlRunner {
     }
 
     /**
-     * Closes a connection after commiting and putting auto commit back to how it was before
+     * Closes a connection after committing and putting auto commit back to how it was before
      * getConnection was called.
      * @param connection
      *   The connection to close.
@@ -778,6 +778,10 @@ public final class SqlRunner {
      *   The statements from the file.
      */
     private List<SqlRunnerStatement> readFile(final String fileName) {
+        if (fileName == null) {
+            throw new NullPointerException("fileName must not be null");
+        }
+
         BufferedReader reader = null;
 
         try {

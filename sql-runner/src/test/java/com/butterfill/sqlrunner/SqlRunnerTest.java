@@ -288,9 +288,16 @@ public class SqlRunnerTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testRunNullFileName3() throws Exception {
+    public void testRunNullConnection3() throws Exception {
         System.out.println("run");
-        instance.runFile("a-file", null);
+        instance.runFile("/test.sql", null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRunNullSqlList() throws Exception {
+        System.out.println("run");
+        List<SqlRunnerStatement> sqlList = null;
+        instance.run(sqlList, null);
     }
 
     @Test(expected = SqlRunnerException.class)
