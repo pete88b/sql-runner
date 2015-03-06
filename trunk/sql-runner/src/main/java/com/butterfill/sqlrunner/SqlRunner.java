@@ -1,10 +1,6 @@
 
 package com.butterfill.sqlrunner;
 
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -64,14 +60,9 @@ public final class SqlRunner {
     private final SqlRunnerResultSetNextRowCallbackHandler defaultResultSetNextRowCallbackHandler;
 
     /**
-     * The name of the character set of the SQL script file.
+     * The file reader used by this instance.
      */
-    private String charsetName = "UTF-8";
-
-    /**
-     * The file path prefix.
-     */
-    private String filePathPrefix = "";
+    private final SqlRunnerFileReader fileReader;
 
     /**
      * The attribute name prefix.
@@ -82,23 +73,6 @@ public final class SqlRunner {
      * The attribute name postfix.
      */
     private String attributePostfix = "}";
-
-    /**
-     * Lines with this prefix will be treated as single line comments.
-     */
-    private String singleLineCommentPrefix = "--";
-
-    /**
-     * The sql-runner name comment prefix -
-     * changing singleLineCommentPrefix will also change nameCommentPrefix.
-     */
-    private String nameCommentPrefix = "--sqlrunner.name:";
-
-    /**
-     * The sql-runner fail fast comment prefix -
-     * changing singleLineCommentPrefix will also change nameCommentPrefix.
-     */
-    private String failFastCommentPrefix = "--sqlrunner.failfast:";
 
     /**
      * Attributes that may be used in the SQL file.
@@ -132,9 +106,12 @@ public final class SqlRunner {
      *   The callback handler to use when no handler has been set by statement name.
      * @param resultSetNextRowCallbackHandler
      *   The result set callback handler to use when no handler has been set by statement name.
+     * @param fileReader 
+     *   The file reader to use.
      */
     public SqlRunner(final DataSource dataSource, final SqlRunnerCallbackHandler callbackHandler,
-            final SqlRunnerResultSetNextRowCallbackHandler resultSetNextRowCallbackHandler) {
+            final SqlRunnerResultSetNextRowCallbackHandler resultSetNextRowCallbackHandler,
+            final SqlRunnerFileReader fileReader) {
         if (dataSource == null) {
             throw new NullPointerException("dataSource must not be null");
         }
@@ -144,46 +121,13 @@ public final class SqlRunner {
         if (resultSetNextRowCallbackHandler == null) {
             throw new NullPointerException("resultSetNextRowCallbackHandler must not be null");
         }
+        if (fileReader == null) {
+            throw new NullPointerException("fileReader must not be null");
+        }
         this.dataSource = dataSource;
         this.defaultCallbackHandler = callbackHandler;
         this.defaultResultSetNextRowCallbackHandler = resultSetNextRowCallbackHandler;
-    }
-
-    /**
-     * Sets the name of the character set of the SQL script file - UTF-8 by default.
-     * @param charsetName
-     *   The name of the character set of the SQL script file.
-     * @return
-     *   this instance.
-     */
-    public SqlRunner setCharsetName(final String charsetName) {
-        this.charsetName = charsetName;
-        return this;
-    }
-
-    /**
-     * Sets the file path prefix.
-     * The intended use of the file path prefix is to allow developers to work with file names
-     * without having to know where the files are located.
-     * e.g. To support different DBs we could have the following files
-     * <ul>
-     *   <li>/oracle/do-some-work.sql</li>
-     *   <li>/mysql/do-some-work.sql</li>
-     * </ul>
-     * Developers could write
-     * <p><code>new SqlScriptRunner(dataSource).setFileName("do-some-work.sql")</code></p>
-     * and filePathPrefix ("/oracle/" or "/mysql/") could be set on the SqlScriptRunner via
-     * dependency injection.
-     * <p>See also {@link SqlRunnerFactory}.</p>
-     *
-     * @param filePathPrefix
-     *   The file path prefix.
-     * @return
-     *   this instance.
-     */
-    public SqlRunner setFilePathPrefix(final String filePathPrefix) {
-        this.filePathPrefix = filePathPrefix;
-        return this;
+        this.fileReader = fileReader;
     }
 
     /**
@@ -199,24 +143,6 @@ public final class SqlRunner {
             final String attributePrefix, final String attributePostfix) {
         this.attributePrefix = (attributePrefix == null) ? "" : attributePrefix;
         this.attributePostfix = (attributePostfix == null) ? "" : attributePostfix;
-        return this;
-    }
-
-    /**
-     * Sets the single line comment prefix. Double hyphen is the default.
-     * Note: MySQL allows # as well as --.
-     * @param singleLineCommentPrefix
-     *   The single line comment prefix, which must not be null.
-     * @return
-     *   this instance.
-     */
-    public SqlRunner setSingleLineCommentPrefix(final String singleLineCommentPrefix) {
-        if (singleLineCommentPrefix == null) {
-            throw new NullPointerException("singleLineCommentPrefix must not be null");
-        }
-        this.singleLineCommentPrefix = singleLineCommentPrefix;
-        this.nameCommentPrefix = singleLineCommentPrefix + "sqlrunner.name:";
-        this.failFastCommentPrefix = singleLineCommentPrefix + "sqlrunner.failfast:";
         return this;
     }
 
@@ -341,7 +267,7 @@ public final class SqlRunner {
      *   One SqlRunnerResult for each statement executed.
      */
     public List<SqlRunnerStatement> runFile(final String fileName) {
-        return run(readFile(fileName));
+        return run(fileReader.readFile(fileName));
 
     }
 
@@ -483,7 +409,7 @@ public final class SqlRunner {
      *   One SqlRunnerResult for each statement executed.
      */
     public List<SqlRunnerStatement> runFile(final String fileName, final Connection connection) {
-        return run(readFile(fileName), connection);
+        return run(fileReader.readFile(fileName), connection);
 
     }
 
@@ -668,22 +594,6 @@ public final class SqlRunner {
     }
 
     /**
-     * Closes a closeable without letting exceptions propagate.
-     * @param closeable
-     *   The closeable to close.
-     */
-    private void close(final Closeable closeable) {
-        try {
-            if (closeable != null) {
-                closeable.close();
-            }
-        } catch (IOException ex) {
-            logger.logp(Level.WARNING, CLASS_NAME, "close(java.io.Closeable)",
-                    "failed to close closeable", ex);
-        }
-    }
-
-    /**
      * Returns a connection from the data source - after disabling auto commit.
      * @return
      *   A SQL connection.
@@ -768,102 +678,6 @@ public final class SqlRunner {
             ex.setRollbackFailedException(sqlEx);
         }
         throw ex;
-    }
-
-    /**
-     * Reads a file.
-     * @param fileName
-     *   Name of the file to read.
-     * @return
-     *   The statements from the file.
-     */
-    private List<SqlRunnerStatement> readFile(final String fileName) {
-        if (fileName == null) {
-            throw new NullPointerException("fileName must not be null");
-        }
-
-        BufferedReader reader = null;
-
-        try {
-            reader = new BufferedReader(
-                    new InputStreamReader(
-                    this.getClass().getResourceAsStream(filePathPrefix + fileName), charsetName));
-
-            final List<SqlRunnerStatement> sqlRunnerStatements =
-                    new ArrayList<SqlRunnerStatement>();
-
-            final StringBuilder sqlBuilder = new StringBuilder();
-            String statementName = null;
-            boolean failFast = true;
-            boolean inMultiLineComment = false;
-
-            for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                final String trimmedLine = line.trim();
-
-                if (trimmedLine.startsWith(nameCommentPrefix)) {
-                    // we've found a sql runner name comment - this gives us the statement name
-                    statementName = trimmedLine.substring(nameCommentPrefix.length()).trim();
-                    continue;
-                }
-
-                if (trimmedLine.startsWith(failFastCommentPrefix)) {
-                    // we've found the fail fast comment
-                    failFast = !"false"
-                            .equals(trimmedLine.substring(failFastCommentPrefix.length()).trim());
-                    continue;
-                }
-
-                if ("".equals(trimmedLine)
-                        || trimmedLine.startsWith(singleLineCommentPrefix)) {
-                    // skip single line comments and empty lines
-                    continue;
-                }
-
-                // skip multi-line comments
-                if (trimmedLine.startsWith("/*")) {
-                    // we're only in a multi-line comment if it is not ended on this line
-                    inMultiLineComment = !trimmedLine.endsWith("*/");
-                    continue;
-                } else if (trimmedLine.endsWith("*/")) {
-                    inMultiLineComment = false;
-                    continue;
-                } else if (inMultiLineComment) {
-                    continue;
-                }
-
-                // add the line to the statement builder
-                sqlBuilder.append(line);
-
-                if (trimmedLine.endsWith(";")) {
-                    // statements are terminated with a semi-colon
-                    final String sql = sqlBuilder.substring(0, sqlBuilder.length() - 1);
-                    sqlRunnerStatements.add(new SqlRunnerStatement(statementName, sql, failFast));
-                    statementName = null;
-                    failFast = true;
-                    sqlBuilder.setLength(0);
-
-                } else {
-                    sqlBuilder.append(LINE_SEPARATOR);
-
-                }
-
-            }
-
-            return sqlRunnerStatements;
-
-        } catch (Exception ex) {
-            // we want to catch IOException and runtime exceptions such as NullPointerException
-            // thrown by InputStreamReader when the resource is not found
-            throw new SqlRunnerException(
-                    "failed to read file [" + fileName
-                    + "]. using filePathPrefix [" + filePathPrefix + "]",
-                    ex);
-
-        } finally {
-            close(reader);
-
-        }
-
     }
 
 }

@@ -19,9 +19,13 @@
         <property name="password" value="weak_pw"/>
     </bean>
 
+    <bean id="fileReader" class="com.butterfill.sqlrunner.util.DefaultFileReader">
+        <property name="filePathPrefix" value="/derby/" />
+    </bean>
+
     <bean class="com.butterfill.sqlrunner.SqlRunnerFactory">
         <property name="dataSource" ref="dataSource" />
-        <property name="filePathPrefix" value="/derby/" />
+        <property name="fileReader" ref="fileReader" />
     </bean>
 
 </beans>

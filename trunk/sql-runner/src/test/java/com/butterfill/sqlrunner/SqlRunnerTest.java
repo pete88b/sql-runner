@@ -3,7 +3,6 @@ package com.butterfill.sqlrunner;
 
 import com.butterfill.sqlrunner.util.DefaultCallbackHandlerImpl;
 import com.butterfill.sqlrunner.util.AttributeSettingResultSetNextRowCallbackHandlerImpl;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -19,6 +18,8 @@ import static org.junit.Assert.*;
 import org.junit.Ignore;
 import static org.mockito.Mockito.*;
 import static com.butterfill.sqlrunner.TestHelper.*;
+import com.butterfill.sqlrunner.util.DefaultFileReader;
+import java.util.ArrayList;
 
 /**
  *
@@ -26,17 +27,13 @@ import static com.butterfill.sqlrunner.TestHelper.*;
  */
 public class SqlRunnerTest {
 
-    /**
-     * Line separator on this platform.
-     */
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n");
-
     private SqlRunner instance;
     private DataSource dataSource;
     private Connection connection;
     private PreparedStatement preparedStatement;
     private SqlRunnerCallbackHandler callbackHandler;
     private SqlRunnerResultSetNextRowCallbackHandler resultSetNextRowCallbackHandler;
+    private SqlRunnerFileReader fileReader;
 
     public SqlRunnerTest() {
     }
@@ -56,7 +53,9 @@ public class SqlRunnerTest {
         dataSource = mock(DataSource.class);
         callbackHandler = new DefaultCallbackHandlerImpl();
         resultSetNextRowCallbackHandler = new AttributeSettingResultSetNextRowCallbackHandlerImpl();
-        instance = new SqlRunner(dataSource, callbackHandler, resultSetNextRowCallbackHandler);
+        fileReader = new DefaultFileReader();
+        instance = new SqlRunner(
+                dataSource, callbackHandler, resultSetNextRowCallbackHandler, fileReader);
     }
 
     @After
@@ -65,50 +64,45 @@ public class SqlRunnerTest {
 
     @Test(expected = NullPointerException.class)
     public void testConstructor() {
-        new SqlRunner(null, callbackHandler, resultSetNextRowCallbackHandler);
+        new SqlRunner(null, callbackHandler, resultSetNextRowCallbackHandler, fileReader);
     }
 
     @Test(expected = NullPointerException.class)
     public void testConstructor2() {
-        new SqlRunner(dataSource, null, resultSetNextRowCallbackHandler);
+        new SqlRunner(dataSource, null, resultSetNextRowCallbackHandler, fileReader);
     }
 
     @Test(expected = NullPointerException.class)
     public void testConstructor3() {
-        new SqlRunner(dataSource, callbackHandler, null);
+        new SqlRunner(dataSource, callbackHandler, null, fileReader);
     }
 
-    /**
-     * Test of setCharsetName method, of class SqlRunner.
-     */
-    @Test
-    public void testSetCharsetName() {
-        System.out.println("setCharsetName");
-        assertEquals("UTF-8", getFieldValue(SqlRunner.class, "charsetName", instance));
-
-        String charsetName = "couldBeAnything";
-
-        SqlRunner result = instance.setCharsetName(charsetName);
-        assertSame(result, instance);
-        assertEquals(charsetName, getFieldValue(SqlRunner.class, "charsetName", instance));
-        assertEquals(charsetName, getFieldValue(SqlRunner.class, "charsetName", result));
+    @Test(expected = NullPointerException.class)
+    public void testConstructor4() {
+        new SqlRunner(dataSource, callbackHandler, resultSetNextRowCallbackHandler, null);
     }
 
-    /**
-     * Test of setFilePathPrefix method, of class SqlRunner.
-     */
+    @Test(expected = NullPointerException.class)
+    public void testToSqlRunnerStatemets_null() {
+        instance.toSqlRunnerStatements(null);
+    }
+
     @Test
-    public void testSetFilePathPrefix() {
-        System.out.println("setFilePathPrefix");
-
-        assertEquals("", getFieldValue(SqlRunner.class, "filePathPrefix", instance));
-
-        String filePathPrefix = "/com/test/scripts/mysql/";
-
-        SqlRunner result = instance.setFilePathPrefix(filePathPrefix);
-        assertSame(result, instance);
-        assertEquals(filePathPrefix, getFieldValue(SqlRunner.class, "filePathPrefix", instance));
-        assertEquals(filePathPrefix, getFieldValue(SqlRunner.class, "filePathPrefix", result));
+    public void testToSqlRunnerStatemets() {
+        List<String> sqlList = new ArrayList<String>();
+        assertTrue(instance.toSqlRunnerStatements(sqlList).isEmpty());
+        sqlList.add("a");
+        sqlList.add("b");
+        List<SqlRunnerStatement> result = instance.toSqlRunnerStatements(sqlList);
+        assertEquals(2, result.size());
+        SqlRunnerStatement statement = result.get(1);
+        assertEquals("b", statement.getSql());
+        assertEquals(null, statement.getException());
+        assertEquals(true, statement.getFailFast());
+        assertEquals(null, statement.getName());
+        assertEquals(null, statement.getResult());
+        assertEquals(null, statement.getResultOfExecutionWasResultSet());
+        assertEquals(null, statement.getUpdateCount());
     }
 
     /**
@@ -161,53 +155,6 @@ public class SqlRunnerTest {
         attributeValue = 9L;
         instance.setAttribute(attributeName, attributeValue);
         assertEquals("9", attributeMap.get(attributeName));
-
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testSetSingleLineCommentPrefix_passNull() {
-        instance.setSingleLineCommentPrefix(null);
-    }
-
-    @Test
-    public void testSetSingleLineCommentPrefix() {
-        assertEquals("--", getFieldValue(SqlRunner.class, "singleLineCommentPrefix", instance));
-        instance.setSingleLineCommentPrefix("#");
-        assertEquals("#", getFieldValue(SqlRunner.class, "singleLineCommentPrefix", instance));
-        assertEquals("#sqlrunner.name:",
-                TestHelper.getFieldValue(SqlRunner.class, "nameCommentPrefix", instance));
-    }
-
-    @Test
-    public void testReadFile() throws Exception {
-        System.out.println("readFile");
-
-        Method readFileMethod = TestHelper.getMethod(SqlRunner.class, "readFile", String.class);
-
-        instance.setFilePathPrefix("/");
-        List<SqlRunnerStatement> result = (List<SqlRunnerStatement>)
-                readFileMethod.invoke(instance, "test.sql");
-
-        SqlRunnerStatement statement = result.get(0);
-        assertEquals(null, statement.getUpdateCount());
-        assertEquals(null, statement.getName());
-        assertEquals(null, statement.getException());
-        String expectedSql = "update a" + LINE_SEPARATOR
-                + "   set b = 2" + LINE_SEPARATOR
-                + " where 1 = 2";
-        assertEquals(expectedSql, statement.getSql());
-
-        statement = result.get(1);
-        assertEquals(null, statement.getUpdateCount());
-        assertEquals("query1", statement.getName());
-        assertEquals(null, statement.getException());
-        expectedSql = "SELECT *" + LINE_SEPARATOR + "  FROM dual";
-        assertEquals(expectedSql, statement.getSql());
-
-        statement = result.get(2);
-        assertEquals("query2", statement.getName());
-
-        assertEquals(3, result.size());
 
     }
 

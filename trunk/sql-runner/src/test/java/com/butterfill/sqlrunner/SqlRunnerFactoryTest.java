@@ -11,6 +11,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static com.butterfill.sqlrunner.TestHelper.*;
+import com.butterfill.sqlrunner.util.DefaultFileReader;
+import java.util.List;
 
 /**
  *
@@ -35,6 +37,20 @@ public class SqlRunnerFactoryTest {
 
     @After
     public void tearDown() {
+    }
+    
+    @Test
+    public void testGetAndSetFileReader() {
+        System.out.println("GetAndSetFileReader");
+        SqlRunnerFactory instance = new SqlRunnerFactory();
+        assertTrue(instance.getFileReader() instanceof DefaultFileReader);
+        SqlRunnerFileReader fileReader = new SqlRunnerFileReader() {
+            public List<SqlRunnerStatement> readFile(String fileName) {
+                return null;
+            }
+        };
+        instance.setFileReader(fileReader);
+        assertSame(fileReader, instance.getFileReader());
     }
 
     /**
@@ -109,54 +125,6 @@ public class SqlRunnerFactoryTest {
         instance.setDefaultResultSetNextRowCallbackHandler(defaultResultSetNextRowCallbackHandler);
         assertSame(defaultResultSetNextRowCallbackHandler,
                 instance.getDefaultResultSetNextRowCallbackHandler());
-    }
-
-    /**
-     * Test of getCharsetName method, of class SqlRunnerFactory.
-     */
-    @Test
-    public void testGetCharsetName() {
-        System.out.println("getCharsetName");
-        SqlRunnerFactory instance = new SqlRunnerFactory();
-        String expResult = "UTF-8";
-        String result = instance.getCharsetName();
-        assertEquals(expResult, result);
-    }
-
-    /**
-     * Test of setCharsetName method, of class SqlRunnerFactory.
-     */
-    @Test
-    public void testSetCharsetName() {
-        System.out.println("setCharsetName");
-        String charsetName = "eggs";
-        SqlRunnerFactory instance = new SqlRunnerFactory();
-        instance.setCharsetName(charsetName);
-        assertEquals(charsetName, instance.getCharsetName());
-    }
-
-    /**
-     * Test of getFilePathPrefix method, of class SqlRunnerFactory.
-     */
-    @Test
-    public void testGetFilePathPrefix() {
-        System.out.println("getFilePathPrefix");
-        SqlRunnerFactory instance = new SqlRunnerFactory();
-        String expResult = "";
-        String result = instance.getFilePathPrefix();
-        assertEquals(expResult, result);
-    }
-
-    /**
-     * Test of setFilePathPrefix method, of class SqlRunnerFactory.
-     */
-    @Test
-    public void testSetFilePathPrefix() {
-        System.out.println("setFilePathPrefix");
-        String filePathPrefix = "eggs";
-        SqlRunnerFactory instance = new SqlRunnerFactory();
-        instance.setFilePathPrefix(filePathPrefix);
-        assertEquals(filePathPrefix, instance.getFilePathPrefix());
     }
 
     /**
@@ -302,16 +270,12 @@ public class SqlRunnerFactoryTest {
                 getFieldValue(SqlRunner.class, "defaultCallbackHandler", result));
         assertEquals(instance.getDefaultResultSetNextRowCallbackHandler(),
                 getFieldValue(SqlRunner.class, "defaultResultSetNextRowCallbackHandler", result));
-        assertEquals("UTF-8",
-                getFieldValue(SqlRunner.class, "charsetName", result));
-        assertEquals("",
-                getFieldValue(SqlRunner.class, "filePathPrefix", result));
+        assertNotNull(
+                getFieldValue(SqlRunner.class, "fileReader", result));
         assertEquals("#{",
                 getFieldValue(SqlRunner.class, "attributePrefix", result));
         assertEquals("}",
                 getFieldValue(SqlRunner.class, "attributePostfix", result));
-        assertEquals("--",
-                getFieldValue(SqlRunner.class, "singleLineCommentPrefix", result));
 
         Map<String, String> resultAttributeMap =
                 (Map<String, String>) getFieldValue(SqlRunner.class, "attributeMap", result);
@@ -356,17 +320,19 @@ public class SqlRunnerFactoryTest {
         rsnrCallbackHandlerMap.put("statement-b", mock(SqlRunnerResultSetNextRowCallbackHandler.class));
         instance.setRunnerResultSetNextRowCallbackHandlerMap(rsnrCallbackHandlerMap);
 
-        instance.setCharsetName("CharsetName");
-        instance.setFilePathPrefix("FilePathPrefix");
+        // change the factory config
+        DefaultFileReader fileReader = new DefaultFileReader();
+        fileReader.setCharsetName("CharsetName");
+        fileReader.setFilePathPrefix("FilePathPrefix");
+        fileReader.setSingleLineCommentPrefix("SingleLineCommentPrefix");
+        instance.setFileReader(fileReader);
+
         instance.setAttributeNamePrefix("AttributeNamePrefix");
         instance.setAttributeNamePostfix("AttributeNamePostfix");
-        instance.setSingleLineCommentPrefix("SingleLineCommentPrefix");
+        fileReader.setSingleLineCommentPrefix("SingleLineCommentPrefix");
 
-        assertEquals("CharsetName", instance.getCharsetName());
-        assertEquals("FilePathPrefix", instance.getFilePathPrefix());
         assertEquals("AttributeNamePrefix", instance.getAttributeNamePrefix());
         assertEquals("AttributeNamePostfix", instance.getAttributeNamePostfix());
-        assertEquals("SingleLineCommentPrefix", instance.getSingleLineCommentPrefix());
 
         SqlRunner result = instance.newSqlRunner();
 
@@ -376,16 +342,12 @@ public class SqlRunnerFactoryTest {
                 getFieldValue(SqlRunner.class, "defaultCallbackHandler", result));
         assertEquals(instance.getDefaultResultSetNextRowCallbackHandler(),
                 getFieldValue(SqlRunner.class, "defaultResultSetNextRowCallbackHandler", result));
-        assertEquals("CharsetName",
-                getFieldValue(SqlRunner.class, "charsetName", result));
-        assertEquals("FilePathPrefix",
-                getFieldValue(SqlRunner.class, "filePathPrefix", result));
+        assertSame(fileReader,
+                getFieldValue(SqlRunner.class, "fileReader", result));
         assertEquals("AttributeNamePrefix",
                 getFieldValue(SqlRunner.class, "attributePrefix", result));
         assertEquals("AttributeNamePostfix",
                 getFieldValue(SqlRunner.class, "attributePostfix", result));
-        assertEquals("SingleLineCommentPrefix",
-                getFieldValue(SqlRunner.class, "singleLineCommentPrefix", result));
 
         Map<String, String> resultAttributeMap =
                 (Map<String, String>) getFieldValue(SqlRunner.class, "attributeMap", result);
