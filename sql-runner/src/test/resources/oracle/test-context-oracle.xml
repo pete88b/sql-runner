@@ -20,9 +20,13 @@
         <property name="implicitCachingEnabled" value="true"/>
     </bean>
 
+    <bean id="fileReader" class="com.butterfill.sqlrunner.util.DefaultFileReader">
+        <property name="filePathPrefix" value="/oracle/" />
+    </bean>
+
     <bean class="com.butterfill.sqlrunner.SqlRunnerFactory">
         <property name="dataSource" ref="dataSource" />
-        <property name="filePathPrefix" value="/oracle/" />
+        <property name="fileReader" ref="fileReader" />
     </bean>
 
 </beans>

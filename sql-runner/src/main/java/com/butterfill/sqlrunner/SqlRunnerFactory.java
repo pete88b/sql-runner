@@ -2,6 +2,7 @@ package com.butterfill.sqlrunner;
 
 import com.butterfill.sqlrunner.util.AttributeSettingResultSetNextRowCallbackHandlerImpl;
 import com.butterfill.sqlrunner.util.DefaultCallbackHandlerImpl;
+import com.butterfill.sqlrunner.util.DefaultFileReader;
 import java.util.Map;
 import javax.sql.DataSource;
 
@@ -31,14 +32,9 @@ public class SqlRunnerFactory {
             new AttributeSettingResultSetNextRowCallbackHandlerImpl();
 
     /**
-     * Name of the character set of SQL files.
+     * The file reader to be used to read SQL files.
      */
-    private String charsetName = "UTF-8";
-
-    /**
-     * The file path prefix.
-     */
-    private String filePathPrefix = "";
+    private SqlRunnerFileReader fileReader = new DefaultFileReader();
 
     /**
      * The attribute name prefix.
@@ -49,11 +45,6 @@ public class SqlRunnerFactory {
      * The attribute name postfix.
      */
     private String attributeNamePostfix = "}";
-
-    /**
-     * Lines with this prefix will be treated as single line comments.
-     */
-    private String singleLineCommentPrefix = "--";
 
     /**
      * Attributes that may be used in the SQL file.
@@ -71,6 +62,24 @@ public class SqlRunnerFactory {
      * Key is a statement name (set via a sql-runner comment or null).
      */
     private Map<String, SqlRunnerResultSetNextRowCallbackHandler> rsnrCallbackHandlerMap;
+
+    /**
+     * Returns the file reader to be used to read SQL files.
+     * @return
+     *   The file reader to be used to read SQL files.
+     */
+    public SqlRunnerFileReader getFileReader() {
+        return fileReader;
+    }
+
+    /**
+     * Sets the file reader to be used to read SQL files.
+     * @param fileReader
+     *   The file reader to be used to read SQL files.
+     */
+    public void setFileReader(final SqlRunnerFileReader fileReader) {
+        this.fileReader = fileReader;
+    }
 
     /**
      * Returns the datasource to be used by SqlRunners created by this factory.
@@ -128,46 +137,6 @@ public class SqlRunnerFactory {
     }
 
     /**
-     * Returns the name of the character set to be used by SqlRunners created by this factory.
-     * SqlRunners use the character set name when reading files.
-     * @return
-     *   The name of the character set to be used by SqlRunners created by this factory.
-     */
-    public String getCharsetName() {
-        return charsetName;
-    }
-
-    /**
-     * Sets the name of the character set to be used by SqlRunners created by this factory.
-     * SqlRunners use the character set name when reading files.
-     * @param charsetName
-     *   The name of the character set to be used by SqlRunners created by this factory.
-     */
-    public void setCharsetName(final String charsetName) {
-        this.charsetName = charsetName;
-    }
-
-    /**
-     * Returns the file path prefix to be used by SqlRunners created by this factory.
-     * SqlRunners use the file path prefix when reading files.
-     * @return
-     *   The file path prefix to be used by SqlRunners created by this factory.
-     */
-    public String getFilePathPrefix() {
-        return filePathPrefix;
-    }
-
-    /**
-     * Sets the file path prefix to be used by SqlRunners created by this factory.
-     * SqlRunners use the file path prefix when reading files.
-     * @param filePathPrefix
-     *   The file path prefix to be used by SqlRunners created by this factory.
-     */
-    public void setFilePathPrefix(final String filePathPrefix) {
-        this.filePathPrefix = filePathPrefix;
-    }
-
-    /**
      * Returns the attribute name prefix to be used by SqlRunners created by this factory.
      * SqlRunners use the attribute name prefix when replacing attributes files.
      * @return
@@ -205,26 +174,6 @@ public class SqlRunnerFactory {
      */
     public void setAttributeNamePostfix(final String attributeNamePostfix) {
         this.attributeNamePostfix = attributeNamePostfix;
-    }
-
-    /**
-     * Returns the single line comment prefix to be used by SqlRunners created by this factory.
-     * SqlRunners use the single line comment prefix when reading files.
-     * @return
-     *   The single line comment prefix to be used by SqlRunners created by this factory.
-     */
-    public String getSingleLineCommentPrefix() {
-        return singleLineCommentPrefix;
-    }
-
-    /**
-     * Sets the single line comment prefix to be used by SqlRunners created by this factory.
-     * SqlRunners use the single line comment prefix when reading files.
-     * @param singleLineCommentPrefix
-     *   The single line comment prefix to be used by SqlRunners created by this factory.
-     */
-    public void setSingleLineCommentPrefix(final String singleLineCommentPrefix) {
-        this.singleLineCommentPrefix = singleLineCommentPrefix;
     }
 
     /**
@@ -298,11 +247,11 @@ public class SqlRunnerFactory {
      */
     public SqlRunner newSqlRunner() {
         final SqlRunner result = new SqlRunner(
-                dataSource, defaultCallbackHandler, defaultResultSetNextRowCallbackHandler)
-                .setCharsetName(charsetName)
-                .setFilePathPrefix(filePathPrefix)
-                .setAttributePrefixAndPostfix(attributeNamePrefix, attributeNamePostfix)
-                .setSingleLineCommentPrefix(singleLineCommentPrefix);
+                dataSource,
+                defaultCallbackHandler,
+                defaultResultSetNextRowCallbackHandler,
+                fileReader)
+                .setAttributePrefixAndPostfix(attributeNamePrefix, attributeNamePostfix);
 
         if (attributeMap != null) {
             for (Map.Entry<String, String> entry : attributeMap.entrySet()) {
