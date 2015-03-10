@@ -21,7 +21,7 @@
     </bean>
 
     <bean id="fileReader" class="com.butterfill.sqlrunner.util.DefaultFileReader">
-        <property name="filePathPrefix" value="/oracle/" />
+        <constructor-arg name="filePathPrefix" value="/oracle/" />
     </bean>
 
     <bean class="com.butterfill.sqlrunner.SqlRunnerFactory">

@@ -1,15 +1,12 @@
 
 package com.butterfill.sqlrunner;
 
-import com.butterfill.sqlrunner.util.DynamicResultSetNextRowCallbackHandlerImpl;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import javax.sql.DataSource;
 import org.junit.After;
 import org.junit.AfterClass;

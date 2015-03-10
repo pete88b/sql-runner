@@ -16,6 +16,19 @@ import java.util.logging.Logger;
 /**
  * Helper class to read SQL files.
  *
+ * <h3>File path prefix</h3>
+ * The intended use of the file path prefix is to allow developers to work with file names
+ * without having to know where the files are located.
+ * e.g. To support different DBs we could have the following files
+ * <ul>
+ *   <li>/oracle/do-some-work.sql</li>
+ *   <li>/mysql/do-some-work.sql</li>
+ * </ul>
+ * Developers could write
+ * <p><code>sqlRunnerFactory.newSqlRunner().runFile("do-some-work.sql")</code></p>
+ * and filePathPrefix ("/oracle/" or "/mysql/") could be set on the {@link SqlRunnerFileReader}
+ * used by {@link com.butterfill.sqlrunner.SqlRunner} via dependency injection.
+ *
  * @author Peter Butterfill
  */
 public class DefaultFileReader implements SqlRunnerFileReader {
@@ -38,82 +51,87 @@ public class DefaultFileReader implements SqlRunnerFileReader {
     /**
      * The name of the character set of the SQL script file.
      */
-    private String charsetName = "UTF-8";
+    private final String charsetName;
 
     /**
      * The file path prefix.
      */
-    private String filePathPrefix = "";
+    private final String filePathPrefix;
 
     /**
      * Lines with this prefix will be treated as single line comments.
      */
-    private String singleLineCommentPrefix = "--";
+    private final String singleLineCommentPrefix;
 
     /**
      * The sql-runner name comment prefix -
      * changing singleLineCommentPrefix will also change nameCommentPrefix.
      */
-    private String nameCommentPrefix = "--sqlrunner.name:";
+    private final String nameCommentPrefix;
 
     /**
      * The sql-runner fail fast comment prefix -
      * changing singleLineCommentPrefix will also change nameCommentPrefix.
      */
-    private String failFastCommentPrefix = "--sqlrunner.failfast:";
+    private final String failFastCommentPrefix;
 
     /**
-     * Sets the name of the character set of the SQL script file - UTF-8 by default.
-     * @param charsetName
-     *   The name of the character set of the SQL script file.
-     * @return
-     *   this instance.
+     * Creates a file reader that will use;
+     * <ul>
+     * <li>UTF-8 character set name,</li>
+     * <li>"" as the file path prefix and </li>
+     * <li>-- as the single line comment prefix.</li>
+     * </ul>
      */
-    public DefaultFileReader setCharsetName(final String charsetName) {
-        this.charsetName = charsetName;
-        return this;
+    public DefaultFileReader() {
+        this.charsetName = "UTF-8";
+        this.filePathPrefix = "";
+        this.singleLineCommentPrefix = "--";
+        this.nameCommentPrefix = "--sqlrunner.name:";
+        this.failFastCommentPrefix = "--sqlrunner.failfast:";
     }
 
     /**
-     * Sets the file path prefix.
-     * The intended use of the file path prefix is to allow developers to work with file names
-     * without having to know where the files are located.
-     * e.g. To support different DBs we could have the following files
+     * Creates a file reader that will use;
      * <ul>
-     *   <li>/oracle/do-some-work.sql</li>
-     *   <li>/mysql/do-some-work.sql</li>
+     * <li>UTF-8 character set name,</li>
+     * <li>the specified file path prefix and</li>
+     * <li>-- as the single line comment prefix.</li>
      * </ul>
-     * Developers could write
-     * <p><code>new SqlScriptRunner(dataSource).setFileName("do-some-work.sql")</code></p>
-     * and filePathPrefix ("/oracle/" or "/mysql/") could be set on the SqlScriptRunner via
-     * dependency injection.
-     *
      * @param filePathPrefix
      *   The file path prefix.
-     * @return
-     *   this instance.
+     *   An empty string is the default.
      */
-    public DefaultFileReader setFilePathPrefix(final String filePathPrefix) {
+    public DefaultFileReader(final String filePathPrefix) {
+        this.charsetName = "UTF-8";
         this.filePathPrefix = filePathPrefix;
-        return this;
+        this.singleLineCommentPrefix = "--";
+        this.nameCommentPrefix = "--sqlrunner.name:";
+        this.failFastCommentPrefix = "--sqlrunner.failfast:";
     }
 
     /**
-     * Sets the single line comment prefix. Double hyphen is the default.
-     * Note: MySQL allows # as well as --.
+     * Creates a new file reader.
+     * @param filePathPrefix
+     *   The file path prefix.
+     *   An empty string is the default.
+     * @param charsetName
+     *   The name of the character set of the SQL script file.
+     *   UTF-8 is the default.
      * @param singleLineCommentPrefix
      *   The single line comment prefix, which must not be null.
-     * @return
-     *   this instance.
+     *   Double hyphen is the default. Note: MySQL allows # as well as --.
      */
-    public DefaultFileReader setSingleLineCommentPrefix(final String singleLineCommentPrefix) {
+    public DefaultFileReader(final String filePathPrefix, final String charsetName,
+            final String singleLineCommentPrefix) {
         if (singleLineCommentPrefix == null) {
             throw new NullPointerException("singleLineCommentPrefix must not be null");
         }
+        this.charsetName = charsetName;
+        this.filePathPrefix = filePathPrefix;
         this.singleLineCommentPrefix = singleLineCommentPrefix;
         this.nameCommentPrefix = singleLineCommentPrefix + "sqlrunner.name:";
         this.failFastCommentPrefix = singleLineCommentPrefix + "sqlrunner.failfast:";
-        return this;
     }
 
     /**
