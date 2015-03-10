@@ -38,7 +38,7 @@ public class SqlRunnerFactoryTest {
     @After
     public void tearDown() {
     }
-    
+
     @Test
     public void testGetAndSetFileReader() {
         System.out.println("GetAndSetFileReader");
@@ -321,15 +321,14 @@ public class SqlRunnerFactoryTest {
         instance.setRunnerResultSetNextRowCallbackHandlerMap(rsnrCallbackHandlerMap);
 
         // change the factory config
-        DefaultFileReader fileReader = new DefaultFileReader();
-        fileReader.setCharsetName("CharsetName");
-        fileReader.setFilePathPrefix("FilePathPrefix");
-        fileReader.setSingleLineCommentPrefix("SingleLineCommentPrefix");
+        DefaultFileReader fileReader = new DefaultFileReader(
+                "FilePathPrefix",
+                "CharsetName",
+                "SingleLineCommentPrefix");
         instance.setFileReader(fileReader);
 
         instance.setAttributeNamePrefix("AttributeNamePrefix");
         instance.setAttributeNamePostfix("AttributeNamePostfix");
-        fileReader.setSingleLineCommentPrefix("SingleLineCommentPrefix");
 
         assertEquals("AttributeNamePrefix", instance.getAttributeNamePrefix());
         assertEquals("AttributeNamePostfix", instance.getAttributeNamePostfix());

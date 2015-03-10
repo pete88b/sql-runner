@@ -17,7 +17,7 @@ import oracle.jdbc.pool.OracleDataSource;
 
 /**
  *
- * @author Butterp
+ * @author Peter Butterfill
  */
 public class TestHelper {
 

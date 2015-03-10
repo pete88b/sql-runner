@@ -40,11 +40,6 @@ public final class SqlRunner {
     private static final Logger logger = Logger.getLogger(CLASS_NAME);
 
     /**
-     * Line separator on this platform.
-     */
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n");
-
-    /**
      * The data source to use when executing scripts.
      */
     private final DataSource dataSource;
@@ -106,7 +101,7 @@ public final class SqlRunner {
      *   The callback handler to use when no handler has been set by statement name.
      * @param resultSetNextRowCallbackHandler
      *   The result set callback handler to use when no handler has been set by statement name.
-     * @param fileReader 
+     * @param fileReader
      *   The file reader to use.
      */
     public SqlRunner(final DataSource dataSource, final SqlRunnerCallbackHandler callbackHandler,
