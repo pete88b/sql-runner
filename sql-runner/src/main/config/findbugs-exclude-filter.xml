@@ -1,4 +1,10 @@
 <?xml version="1.0"?>
 <FindBugsFilter>
-    
+    <!-- we want to catch all exceptions, including RuntimeExceptions and wrap thme in a
+    SqlRunnerException -->
+    <Match>
+        <Class name="com.butterfill.sqlrunner.util.DefaultFileReader" />
+        <Method name="readFile" />
+        <Bug pattern="REC_CATCH_EXCEPTION" />
+    </Match>
 </FindBugsFilter>
