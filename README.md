@@ -1,6 +1,3 @@
-# sql-runner
-Automatically exported from code.google.com/p/sql-runner
-
 #Provides an easy way to run SQL from Java.
 The initial idea behind this project was to make it easy to run any number of SQL statements, read from a file, in a single transaction. You could see this as an alternative to using simple stored procedures - but wouldn't want to use sql-runner in place of ORM.
 
